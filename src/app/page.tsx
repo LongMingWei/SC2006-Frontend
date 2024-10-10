@@ -1,24 +1,33 @@
 import Image from "next/image";
+import Head from "next/head";
+import { Roboto } from 'next/font/google'
+
+const roboto = Roboto({
+  weight: '400',
+  subsets: ['latin'],
+})
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <>
+    <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+          rel="stylesheet"
+        />
+    </Head>
+    <div className={`grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 ${roboto.className}`}>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
+          src="/dog.png"
+          alt="doggo"
           width={180}
-          height={38}
+          height={180}
           priority
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+        <ol className={`list-inside list-decimal text-sm text-center sm:text-left text-lg ${roboto.className}`}>
           <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
+            SC2006
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
@@ -97,5 +106,6 @@ export default function Home() {
         </a>
       </footer>
     </div>
+    </>
   );
 }
