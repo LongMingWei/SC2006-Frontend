@@ -37,7 +37,7 @@ export default function UpcomingEvents() {
         <Link href="/">
           <div className="text-orange-500 text-3xl mr-4 inline-block">←</div>
         </Link>
-        <h1 className="text-3xl font-bold text-center">Caretakers</h1>
+        <h1 className="jua text-3xl font-bold text-center">Caretakers</h1>
       </div>
     <div className="space-y-8">
         {caretakers.map(caretaker => (
@@ -53,10 +53,10 @@ export default function UpcomingEvents() {
                 className="rounded-full"
                 />
                 <div className="ml-4">
-                <h2 className="text-xl font-semibold">{caretaker.name}</h2>
-                <p className="text-gray-600">{`Experience: ${caretaker.experience}`}</p>
-                <p className="text-gray-600">{`Services offered: ${caretaker.servicesOffered}`}</p>
-                <p className="text-gray-600">{`Availability: ${caretaker.availability}`}</p>
+                <h2 className="poppins text-xl font-semibold">{caretaker.name}</h2>
+                <p className="poppins text-gray-600">{`Experience: ${caretaker.experience}`}</p>
+                <p className="poppins text-gray-600">{`Services offered: ${caretaker.servicesOffered}`}</p>
+                <p className="poppins text-gray-600">{`Availability: ${caretaker.availability}`}</p>
                 </div>
             </div>
             <div className="border-t-4 border-orange-500"></div>
@@ -65,7 +65,7 @@ export default function UpcomingEvents() {
         ))}
     </div>
     <Link href="search/map">
-        <button className="fixed bottom-8 right-8 bg-orange-500 text-white p-4 rounded-full mb-16 shadow-lg">
+        <button className="fixed bottom-16 right-16 bg-orange-500 text-white p-4 rounded-full mb-16 shadow-lg">
         <FontAwesomeIcon
             icon={faMap}
         />

@@ -22,23 +22,23 @@ const Payment = () => {
         <Link href={`/search/caretaker/${caretaker.id}/booking`}>
             <div className="text-orange-500 text-xl mr-4">←</div>
         </Link>
-        <h1 className="text-3xl font-bold">Payment</h1>
+        <h1 className="jua text-3xl font-bold">Payment</h1>
       </div>
-      <div className="text-left mb-8">
+      <div className="text-left mb-8 poppins">
         <p><strong>Caretaker:</strong> {caretaker.name}</p>
         <p><strong>Service:</strong> {caretaker.service}</p>
         <p><strong>Location:</strong> {caretaker.location}</p>
         <p><strong>Pet’s name:</strong> {caretaker.petName}</p>
         <p><strong>Time chosen:</strong> {caretaker.timeChosen}</p>
       </div>
-      <div className="text-left mb-8">
+      <div className="text-left mb-8 poppins">
         <p><strong>Service Fee:</strong> {caretaker.serviceFee}</p>
         <p>Please make your payment via the QR code</p>
       </div>
       <div className="mb-8">
         <Image src="/qr-code.png" alt="QR Code" width={200} height={200} />
       </div>
-      <button className="bg-orange-500 text-white px-4 py-2 rounded">Pay</button>
+      <button className="poppins bg-orange-500 text-white px-4 py-2 rounded">Pay</button>
     </div>
   );
 };

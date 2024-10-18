@@ -86,20 +86,20 @@ export default function BookingPage() {
         <div className="flex items-center mb-8">
           <Image src={caretaker.imageUrl} alt={caretaker.name} width={180} height={180} className="rounded-full mr-4" />
           <div className="ml-4">
-            <h1 className="text-3xl font-bold">{caretaker.name}</h1>
+            <h1 className="jua text-3xl font-bold">{caretaker.name}</h1>
             <Link href={`/search/caretaker/${caretaker.id}`}>
-              <div className="text-orange-500 text-xl mb-4">← Back to profile</div>
+              <div className="poppins text-orange-500 text-xl mb-4">← Back to profile</div>
             </Link>
           </div>
         </div>
-        <div className="mb-4">
+        <div className="mb-4 poppins">
           <p><strong>Experience:</strong> {caretaker.experience}</p>
           <p><strong>Services offered:</strong> {caretaker.servicesOffered}</p>
           <p><strong>Availability:</strong> {caretaker.availability}</p>
           <p><strong>Rates:</strong> {caretaker.rates}</p>
           <p><strong>Location:</strong> {caretaker.location}</p>
         </div>
-        <div className="mb-4">
+        <div className="mb-4 poppins">
           <label htmlFor="pet" className="block text-lg font-medium text-gray-700">Choose Pet</label>
           <select
             id="pet"
@@ -114,7 +114,7 @@ export default function BookingPage() {
             <option value="pet3">Pet 3</option>
           </select>
         </div>
-        <div className="mb-8">
+        <div className="mb-8 poppins">
           <label htmlFor="date" className="block text-lg font-medium text-gray-700">Choose Date and Time</label>
           <div className="flex items-center">
             <DatePicker
@@ -133,7 +133,7 @@ export default function BookingPage() {
             </button>
           </div>
         </div>
-        <div className="mb-8">
+        <div className="mb-8 poppins">
           <h3 className="text-lg font-medium text-gray-700">Selected Timeslots:</h3>
           {selectedTimeslots.map((timeslot, index) => (
             <div key={index} className="flex justify-between items-center">
@@ -149,7 +149,7 @@ export default function BookingPage() {
         </div>
         <div className="flex justify-center">
           <Link href={`/search/caretaker/${caretaker.id}/booking/payment`}>
-            <div className="bg-orange-500 text-white px-4 py-2 rounded">Book</div>
+            <div className="poppins bg-orange-500 text-white px-4 py-2 rounded">Book</div>
           </Link>
         </div>
       </div>

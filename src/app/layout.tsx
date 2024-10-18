@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Afacad } from 'next/font/google'
 import TabbedMenu from "./TabbedMenu";
-
-const afacad = Afacad({ 
-  weight: ["400", "700"],
-  subsets: ["latin"],
-})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={afacad.className}>
+    <html lang="en">
       <body>
         <div className="mt-16"></div>
         {children}

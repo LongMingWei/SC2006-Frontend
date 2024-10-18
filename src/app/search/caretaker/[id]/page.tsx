@@ -71,14 +71,14 @@ return (
         </Link>
       <Image src={caretaker.imageUrl} alt={caretaker.name} width={180} height={180} className="rounded-full" />
       <div className="ml-4">
-        <h1 className="text-3xl font-bold">{caretaker.name}</h1>
-        <p className="text-lg">{'⭐'.repeat(Math.round(averageRating))} ({averageRating.toFixed(1)})</p>
+        <h1 className="jua text-3xl font-bold">{caretaker.name}</h1>
+        <p className="poppins text-lg">{'⭐'.repeat(Math.round(averageRating))} ({averageRating.toFixed(1)})</p>
         <Link href={`/search/caretaker/${caretaker.id}/booking`}>
-          <button className="bg-orange-500 text-white px-4 py-2 rounded mt-2">Book Now</button>
+          <button className="poppins bg-orange-500 text-white px-4 py-2 rounded mt-2">Book Now</button>
         </Link>
       </div>
     </div>
-    <div className="mt-4">
+    <div className="mt-4 poppins">
       <p className="bg-orange-100 p-4 rounded-lg">{caretaker.introduction}</p>
       <p className="mt-2">Experience: {caretaker.experience}</p>
       <p className="mt-2">Services Offered: {caretaker.servicesOffered.join(', ')}</p>
@@ -86,7 +86,7 @@ return (
       <p className="mt-2">Rates: {caretaker.rates}</p>
       <p className="mt-2">Location: {caretaker.location}</p>
     </div>
-    <div className="mt-8">
+    <div className="mt-8 poppins">
       <h2 className="text-xl font-bold">Reviews</h2>
       {caretaker.reviews.map((review, index) => (
         <div key={index} className="mt-4">

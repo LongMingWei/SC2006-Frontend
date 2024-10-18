@@ -21,7 +21,7 @@ export default function Home() {
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen">
         <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <section className="w-full text-left">
-            <h2 className="text-xl font-bold border-l-4 border-orange-500 pl-2">Upcoming Events</h2>
+            <h2 className="jua text-xl font-bold border-l-4 border-orange-500 pl-2">Upcoming Events</h2>
           </section>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {events.map(event => (
@@ -34,14 +34,14 @@ export default function Home() {
                   objectFit="cover"
                   className="rounded-lg"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
+                <div className="poppins absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
                   {event.title}
                 </div>
               </div>
             ))}
           </div>
           <section className="w-full text-left">
-            <h2 className="text-xl font-bold border-l-4 border-orange-500 pl-2">Services</h2>
+            <h2 className="jua text-xl font-bold border-l-4 border-orange-500 pl-2">Services</h2>
           </section>
           <div className="flex gap-4 items-center justify-center w-full">
           <Link href="/upcoming-bookings">
@@ -54,7 +54,7 @@ export default function Home() {
                 objectFit="cover"
                 className="rounded-lg"
               />
-              <span className="mt-2">Upcoming Bookings</span>
+              <span className="jua mt-2">Upcoming Bookings</span>
             </div>
           </Link>
           <Link href="/view-events">
@@ -67,7 +67,7 @@ export default function Home() {
                 objectFit="cover"
                 className="rounded-lg"
               />
-              <span className="mt-2">View events</span>
+              <span className="jua mt-2">View events</span>
             </div>
           </Link>
           </div>

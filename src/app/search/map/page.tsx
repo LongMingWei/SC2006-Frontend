@@ -5,6 +5,7 @@ import { APIProvider, Map, useMap, AdvancedMarker, MapCameraChangedEvent } from 
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import type { Marker } from '@googlemaps/markerclusterer';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type Caretaker = {
   id: number;
@@ -56,19 +57,21 @@ export default function Mapper() {
     }, []);
   
     return (
-      <APIProvider apiKey={process.env.NEXT_PUBLIC_MAPS_API_KEY || ''} onLoad={() => console.log('Maps API has loaded.')}>
-        <Map
-          defaultZoom={13}
-          defaultCenter={{ lat: -33.860664, lng: 151.208138 }}
-          onCameraChanged={(ev: MapCameraChangedEvent) =>
-            console.log('camera changed:', ev.detail.center, 'zoom:', ev.detail.zoom)
-          }
-          mapId='da37f3254c6a6d1c'
-          style={{ width: '100%', height: '100vh' }}
-        >
-          <CaretakerMarkers caretakers={caretakers} />
-        </Map>
-      </APIProvider>
+      <><Link href="/search">
+        <button className="absolute z-10 bottom-16 right-16 bg-orange-500 text-2xl text-white p-4 rounded-full mb-16 shadow-lg">
+        ←
+        </button>
+      </Link><APIProvider apiKey={process.env.NEXT_PUBLIC_MAPS_API_KEY || ''} onLoad={() => console.log('Maps API has loaded.')}>
+          <Map
+            defaultZoom={13}
+            defaultCenter={{ lat: -33.860664, lng: 151.208138 }}
+            onCameraChanged={(ev: MapCameraChangedEvent) => console.log('camera changed:', ev.detail.center, 'zoom:', ev.detail.zoom)}
+            mapId='da37f3254c6a6d1c'
+            style={{ width: '100%', height: '100vh' }}
+          >
+            <CaretakerMarkers caretakers={caretakers} />
+          </Map>
+        </APIProvider></>
     );
   }
   
@@ -93,7 +96,7 @@ export default function Mapper() {
   
         const infoWindow = new google.maps.InfoWindow({
           content: `
-            <div style="display: flex; align-items: center;">
+            <div class="poppins" style="display: flex; align-items: center;">
               <img src="${caretaker.avatar}" alt="${caretaker.name}" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;" />
               <div>
                 <h3>${caretaker.name}</h3>

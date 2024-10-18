@@ -14,14 +14,38 @@
   }
 }
 
-/*
 @font-face {
-  font-family: 'Jua';
-  src: url('../assets/fonts/Jua-Regular.ttf') format('truetype');
+  font-family: 'Jua-Regular';
+  src: url('fonts/Jua-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
-  */
+
+@font-face {
+  font-family: 'Poppins-Bold';
+  src: url('fonts/Poppins-Bold.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins-Regular';
+  src: url('fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+.jua {
+  font-family: 'Jua-Regular', sans-serif;
+}
+
+.poppinsbold {
+  font-family: 'Poppins-Bold', sans-serif;
+}
+
+.poppins {
+  font-family: 'Poppins-Regular', sans-serif;
+}
 
 body {
   color: var(--foreground);
