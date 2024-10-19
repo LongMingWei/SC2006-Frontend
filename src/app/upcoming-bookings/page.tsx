@@ -35,9 +35,9 @@ export default function UpcomingEvents() {
         <Link href="/">
           <div className="text-orange-500 text-3xl mr-4 inline-block">←</div>
         </Link>
-        <h1 className="text-3xl font-bold text-center">Upcoming Events</h1>
+        <h1 className="jua text-3xl font-bold text-center">Upcoming Events</h1>
       </div>
-      <div className="space-y-8">
+      <div className="poppins space-y-8">
         {events.map(event => (
           <Link key={event.id} href={`upcoming-bookings/event/${event.id}`}>
             <div className="w-full cursor-pointer">

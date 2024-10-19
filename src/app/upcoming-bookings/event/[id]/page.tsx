@@ -47,9 +47,9 @@ export default function EventDetails() {
           <Link href="/upcoming-bookings">
             <div className="text-orange-500 mr-4 text-3xl">←</div>
           </Link>
-          <h1 className="text-3xl font-bold text-center">Manage Booking</h1>
+          <h1 className="jua text-3xl font-bold text-center">Manage Booking</h1>
         </div>
-        <div className="flex items-center justify-center mb-8">
+        <div className="flex items-center justify-center poppins mb-8">
           <Image
             src={event.avatarUrl}
             alt={event.name}
@@ -59,7 +59,7 @@ export default function EventDetails() {
           />
           <h1 className="text-3xl font-bold">{event.name}</h1>
         </div>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center poppins">
           <p className="text-gray-600 mb-2">Date: {event.date}</p>
           <p className="text-gray-600 mb-2">Location: {event.location}</p>
           <p className="text-gray-600 mb-8">Time: {event.time}</p>

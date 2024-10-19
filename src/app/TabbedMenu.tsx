@@ -18,7 +18,7 @@ const TabbedMenu = () => {
     <>
     <div className="fixed top-0 left-0 right-0 flex justify-between bg-white dark:bg-black p-4 border-b border-gray-200 dark:border-gray-700">
         <span className="jua text-xl font-bold text-orange-500">PetBuddy</span>
-        <span className="poppinsbold text-xl text-orange-500">Hello, User</span>
+        <span className="poppinsbold text-l text-orange-500">Hello, User</span>
     </div>
     <div className="fixed bottom-0 left-0 right-0 flex justify-around bg-white dark:bg-black p-4 border-t border-gray-200 dark:border-gray-700">
       {tabs.map((tab) => (
