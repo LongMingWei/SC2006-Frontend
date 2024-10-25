@@ -10,8 +10,8 @@ const TabbedMenu = () => {
   const tabs = [
     { href: '/', icon: faHome, label: 'Home' },
     { href: '/search', icon: faSearch, label: 'Search' },
-    { href: '/chat', icon: faComment, label: 'Chat' },
-    { href: '/profile', icon: faUser, label: 'Profile' },
+    { href: '/messages', icon: faComment, label: 'Chat' },
+    { href: '/profile-petOwner', icon: faUser, label: 'Profile' },
   ];
 
   return (
