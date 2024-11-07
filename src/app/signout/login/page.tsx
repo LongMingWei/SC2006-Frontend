@@ -1,15 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
   const handleLogin = () => {
     // Handle login logic
     console.log('Login with:', email, password);
+    if (email && password) {
+      console.log('Login with:', email, password);
+
+      // Redirect to the homepage after successful login
+      router.push('/homepage');  // Navigate to the homepage
+    } else {
+      console.log('Please provide both email and password');
+      alert('Please provide both email and password');
+    }
   };
 
   return (

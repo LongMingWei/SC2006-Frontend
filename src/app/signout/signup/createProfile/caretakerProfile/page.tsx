@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const CaretakerProfileNew = () => {
     const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const CaretakerProfileNew = () => {
         gender: '',
         experience: '',
     });
+    const router = useRouter();
 
     const [isFormValid, setIsFormValid] = useState(false);
     useEffect(() => {
@@ -31,6 +33,8 @@ const CaretakerProfileNew = () => {
             // Perform form submission logic here
             console.log(formData);
             alert('Profile saved successfully!');
+            router.push('/homepage');
+
         } else {
             alert('Please fill out all required fields.');
         }
@@ -90,14 +94,12 @@ const CaretakerProfileNew = () => {
             </div>
 
             {/* Save Button */}
-            <Link href="/homepage">
                 <button
                     className="poppins bg-orange-500 text-white py-2 px-4 rounded mt-4"
                     onClick={handleSubmit}
                 >
                     Save
                 </button>
-            </Link>
 
             <Image src="/line1.png" alt="White Puppy" width={160} height={180} className="my-5" />
 
