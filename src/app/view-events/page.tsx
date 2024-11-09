@@ -31,7 +31,7 @@ const events = [
 export default function ViewEvents() {
   return (
     <div className="p-8">
-      <Link href="/">
+      <Link href="/homepage">
         <div className="text-orange-500 text-5xl mb-4 ml-16 inline-block">←</div>
       </Link>
       <h1 className="text-3xl font-bold mb-8 text-center">View Events</h1>

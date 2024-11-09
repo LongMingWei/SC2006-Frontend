@@ -58,7 +58,7 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
     return (
       <div className="poppins bg-white min-h-screen">
         <main className="p-4">
-          <h2 className="text-2xl font-bold mb-4">Profile</h2>
+          <h2 className="jua text-2xl font-bold mb-4">Profile</h2>
           <ProfileCard 
             name="John" 
             email="johnsmith@gmail.com" 
@@ -66,7 +66,7 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
             imgUrl="/johndoe.png" 
           />
           
-          <h2 className="text-2xl font-bold mb-4">My Pets</h2>
+          <h2 className="jua text-2xl font-bold mb-4">My Pets</h2>
           <div className="flex justify-between items-center mb-4">
             <PetCard 
               name="Kimmy" 

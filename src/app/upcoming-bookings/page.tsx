@@ -32,7 +32,7 @@ export default function UpcomingEvents() {
   return (
     <div className="p-8">
       <div className="flex items-center justify-center mb-8">
-        <Link href="/">
+        <Link href="/homepage">
           <div className="text-orange-500 text-3xl mr-4 inline-block">←</div>
         </Link>
         <h1 className="jua text-3xl font-bold text-center">Upcoming Events</h1>
