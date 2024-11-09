@@ -83,24 +83,6 @@ const AddServiceProfile = () => {
             alert("Error: Please fill out all required fields.");
         }
     };
-    const pickImage = () => {
-        // Create a file input element programmatically
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*'; // Allow only image files
-        input.onchange = (e: any) => {
-            // Handle the file selection
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setImage(reader.result as string); // Set the selected image URL to the state
-                };
-                reader.readAsDataURL(file); // Convert the image to base64 and store it in the image state
-            }
-        };
-        input.click(); // Simulate a click on the file input to open the file dialog
-    };
     
 
     return (
@@ -115,16 +97,6 @@ const AddServiceProfile = () => {
                 {/* Title and pet image */}
                 <h2 className="jua text-3xl font-bold text-center mt-4">Create Pet Profile</h2>
                 <h3 className="jua text-2xl font-bold text-center text-orange-500 mt-2">Pet</h3>
-
-                {/* Image Upload */}
-                <div className="flex flex-col items-center mt-4">
-                    {image ? (
-                        <Image src={image} alt="Pet" width={100} height={100} className="w-36 h-36 object-cover rounded-full border border-orange-500 mt-2" />
-                    ) : (
-                        <Image src="/brownpuppy.png" alt="Pet" width={100} height={100} className="w-36 h-36 object-cover rounded-full border border-orange-500 mt-2" />
-                    )}
-                    <button onClick={pickImage} className="poppins text-blue-500 underline mt-4">Add profile picture</button>
-                </div>
 
                 {/* Form fields */}
                 <div className="poppins mt-6">
