@@ -1,8 +1,40 @@
-import React from 'react';
+"use client"
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMap } from '@fortawesome/free-regular-svg-icons';
+import axios from 'axios';
+
+// Types for user data
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  created_at: string; 
+}
+
+// Types for the main response
+interface Profile {
+  name: string;
+  dob: string;      
+  gender: 'male' | 'female' | 'other';  // Using union type for specific values
+  work_exp: number;
+  service: Service[]; 
+  user: User;
+}
+
+// Type for days of the week
+type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+
+// Type for service details
+interface Service {
+  service: string;
+  service_rate: number;
+  service_availability: DayOfWeek[];
+  location: string[];
+}
+
+const userId = 1;
   
   const ProfileCard: React.FC<{
     name:string;
@@ -42,27 +74,31 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
   );
 
   const ServiceCard: React.FC<{
-    serviceName:string;
+    serviceName: string;
     rate: string;
     availability: string;
-    imgUrl:string;
+    imgUrl: string;
   }> = ({ serviceName, rate, availability, imgUrl }) => (
-    <div className="bg-orange-50 rounded-2xl p-4 mb-4 shadow-md w-48">
-      <div className= "flex items-center mb-2">
+    <div className="flex-shrink-0 bg-orange-50 rounded-3xl p-6 shadow-md w-[280px] h-[160px]">
+      <div className="flex items-start">
         <Image src={imgUrl} alt={serviceName} width={60} height={60} className="rounded-lg mr-4" />
         <div>
-          <h3 className="font-bold text-xl">{serviceName}</h3>
-          <p className="text-sm text-gray-600">{rate}</p>
-          <p className="text-sm text-gray-600">{availability}</p>
+          <h3 className="font-bold text-xl mb-2">{serviceName}</h3>
+          <p className="text-gray-600 mb-1">{rate}</p>
+          <p className="text-gray-600 text-sm">{availability}</p>
         </div>
       </div>
     </div>
   );
 
   const AddServiceButton: React.FC = () => (
-    <button className="bg-orange-300 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl ml-4">+</button>
-  )
-  
+    <div className="flex-shrink-0 flex items-center h-[160px]">
+      <button className="bg-[#F4B183] text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl hover:bg-[#eb9e67] transition-colors">
+        +
+      </button>
+    </div>
+  );
+
   const GeneralItem: React.FC<{
     text:string;
     link: string;
@@ -77,14 +113,50 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
   );
   
   const ProfilePage: React.FC = () => {
+    const [profile, setProfile] = useState<Profile | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3MzExNjEzMzR9.IVa3Jx0N188vpMNjsoKtsbbxMkIRDhWSy4uVYkphUDw"
+
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get<Profile>(`http://localhost:8000/caretaker/${userId}`, config);
+          setProfile(response.data);
+          console.log(response.data)
+          setError(null);
+        } catch (err) {
+          setProfile(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
+    }, []); // Empty dependency array means this runs once on mount
+
+
+    if (loading) {
+      return "Loading..."
+    }
+
     return (
-      <div className="bg-white min-h-screen">
+      <div className=" bg-white min-h-screen">
         <main className="p-4">
           <h2 className="text-2xl font-bold mb-4">Profile</h2>
           <ProfileCard 
-            name="John" 
-            email="johnsmith@gmail.com" 
-            username="@johnsmith" 
+            name={profile?.name || "Loading..."} 
+            email={profile?.user.email || "Loading..."} 
+            username={`@${profile?.user.username}`} 
             imgUrl="/johndoe.png" 
           />
           
@@ -98,14 +170,22 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
             />
 
           <h2 className="text-3xl font-bold mb-4">My Services</h2>
-          <div className="flex items-center mb-6">  
-            <ServiceCard 
-              serviceName="Pet Grooming" 
-              rate="$50/hr" 
-              availability="Mon, Tue"
-              imgUrl="/kimmydog.png" 
-            />
+          <div className="relative">
+          <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
+            {profile?.service.map((service) => {
+              return (
+                <ServiceCard 
+                  key={service.service}
+                  serviceName={service.service}
+                  rate={`$${service.service_rate}/hr`} 
+                  availability={service.service_availability.join(', ')}
+                  imgUrl="/kimmydog.png" 
+                />
+              )
+            })}
+            <div className="flex-shrink-0"></div>
             <AddServiceButton/>
+          </div>
           </div>
           
           <h2 className="text-2xl font-bold mb-4">General</h2>
