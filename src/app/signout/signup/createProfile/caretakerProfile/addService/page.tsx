@@ -2,46 +2,190 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+// Enum-like objects for `Gender`, `Location`, and `Service`
+const Availability = {
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+    sunday: "Sunday"
+};
+
+const Location = {
+    dhoby_ghaut: "Dhoby Ghaut",
+    outram_park: "Outram Park",
+    chinatown: "Chinatown",
+    clarke_quay: "Clarke Quay",
+    boat_quay: "Boat Quay",
+    city_hall: "City Hall",
+    esplanade: "Esplanade",
+    raffles_place: "Raffles Place",
+    bayfront: "Bayfront",
+    marina_bay: "Marina Bay",
+    promontory: "Promontory",
+    marina_bay_sands: "Marina Bay Sands",
+    bugis: "Bugis",
+    lavender: "Lavender",
+    kallang: "Kallang",
+    geylang_bahru :"Geylang Bahru",
+    potong_pasir :"Potong Pasir",
+    serangoon :"Serangoon",
+    dhoby_ghaut_interchange :"Dhoby Ghaut Interchange",
+    toapayoh :"Toa Payoh",
+    braddell :"Braddell",
+    bishan :"Bishan",
+    marymount :"Marymount",
+    bartley :"Bartley",
+    paya_lebar :"Paya Lebar",
+    eunos :"Eunos",
+    bedok :"Bedok",
+    tampines :"Tampines",
+    pasir_ris :"Pasir Ris",
+    simei :"Simei",
+    expo :"Expo",
+    tanah_merah :"Tanah Merah",
+    changi_airport :"Changi Airport",
+    bedok_north :"Bedok North",
+    hougang :"Hougang",
+    serangoon_north :"Serangoon North",
+    yishun :"Yishun",
+    sembawang :"Sembawang",
+    woodlands :"Woodlands",
+    admiralty :"Admiralty",
+    marsiling :"Marsiling",
+    woodlands_south :"Woodlands South",
+    bukit_panjang :"Bukit Panjang",
+    jelapang :"Jelapang",
+    chua_chu_kang :"Chua Chu Kang",
+    lot_one :"Lot One",
+    bukit_gombak :"Bukit Gombak",
+    beauty_world :"Beauty World",
+    little_india :"Little India",
+    orchard : "Orchard",
+    somerset : "Somerset",
+    novena : "Novena",
+    toa_payoh_north : "Toa Payoh North",
+    novena_north : "Novena North",
+    bishan_north : "Bishan North",
+    serangoon_south : "Serangoon South",
+    yishun_north : "Yishun North",
+    sembawang_north : "Sembawang North",
+    bedok_north_east : "Bedok North East",
+    jurong_east : "Jurong East",
+    jurong_west : "Jurong West",
+    bukit_batok : "Bukit Batok",
+    lot_one_north : "Lot One North",
+    woodlands_west : "Woodlands West",
+    thomson_east_coast : "Thomson East Coast",
+    tanjong_pagar : "Tanjong Pagar",
+    bencoolen : "Bencoolen",
+    king_albert_park : "King Albert Park",
+    upper_bukit_timah : "Upper Bukit Timah",
+    bukit_timah : "Bukit Timah",
+    joo_kong : "Joo Koon",
+    jurong_lake : "Jurong Lake",
+    yishun_east : "Yishun East",
+    kranji : "Kranji",
+    bukit_gombak_east : "Bukit Gombak East",
+    changi : "Changi",
+    puah_road : "Puah Road",
+    orchard_road : "Orchard Road"
+};
+
+const Service = {
+    pet_walking: "Pet Walking",
+    pet_feeding: "Pet Feeding",
+    pet_grooming: "Pet Grooming",
+    pet_training: "Pet Training",
+    pet_sitting: "Pet Sitting",
+    overnight_stay: "Overnight Stay",
+    dog_daycare: "Dog Daycare",
+};
 
 const AddServiceProfile = () => {
     const [formData, setFormData] = useState({
         services: '',
         rates: '',
-        availability: '',
-        location: '',
+        availability: [] as string[],
+        location: [] as string[],
     });
 
     const [image, setImage] = useState<string | null>(null); // State to store the selected image
     const [isFormValid, setIsFormValid] = useState(false);
-
-    const handleInputChange = (key: string, value: string) => {
-        setFormData({ ...formData, [key]: value });
-    };
+    const router = useRouter();
 
     useEffect(() => {
         const requiredFieldsFilled =
-            formData.services !== '' &&
-            formData.rates !== '' &&
-            formData.availability !== '' &&
-            formData.location !== '';
-
+            formData.services.trim() !== '' &&
+            formData.rates.trim() !== '' &&
+            formData.availability.length > 0 &&
+            formData.location.length > 0;
         setIsFormValid(requiredFieldsFilled);
     }, [formData]);
 
-    // Handle form submission
-    const handleSubmit = () => {
+    const handleInputChange = (key: string, value: any) => {
+        setFormData({ ...formData, [key]: value });
+    };
+
+    const handleMultiSelectChange = (key: 'availability' | 'location', value: any) => {
+        const updatedValue = formData[key].includes(value)
+            ? formData[key].filter((item: any) => item !== value)
+            : [...formData[key], value];
+        handleInputChange(key, updatedValue);
+    };
+    
+
+    const handleSubmit = async () => {
         if (isFormValid) {
-            // Perform form submission logic here
-            console.log(formData);
-            alert("Success: Services saved successfully!");
+            try {
+                const accessToken = sessionStorage.getItem('access_token');
+                const userId = sessionStorage.getItem('user_id');
+
+                if (!userId || !accessToken) {
+                    alert("Error: User not authenticated.");
+                    return;
+                }
+
+                const payload = {
+                    service: formData.services,
+                    service_rate: parseInt(formData.rates),
+                    service_availability: formData.availability,
+                    location: formData.location,
+                };
+
+                console.log(payload);
+                console.log(JSON.stringify(payload))
+
+                const response = await fetch(`http://localhost:8000/service/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    alert("Success: Service saved successfully!");
+                    router.push('/homepage');
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error("Submission error:", error);
+                alert("Error: Could not submit service.");
+            }
         } else {
             alert("Error: Please fill out all required fields.");
         }
     };
 
     const pickImage = async () => {
-        // Image picking logic for web
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
@@ -61,11 +205,9 @@ const AddServiceProfile = () => {
     return (
         <div className="flex flex-col items-center p-5 bg-white min-h-screen">
             <div className="w-full max-w-md">
-                {/* Title and pet image */}
                 <h2 className="jua text-3xl font-bold text-center mt-4">Create a Service</h2>
                 <h3 className="jua text-2xl font-bold text-center text-orange-500 mt-2">Services</h3>
 
-                {/* Image Upload */}
                 <div className="flex flex-col items-center mt-4">
                     {image ? (
                         <img src={image} alt="Service" className="w-72 h-36 rounded-lg border border-orange-500 mt-2" />
@@ -75,18 +217,20 @@ const AddServiceProfile = () => {
                     <button onClick={pickImage} className="poppins text-blue-500 underline mt-4">Add service picture</button>
                 </div>
 
-                {/* Form fields */}
                 <div className="poppins mt-6">
                     {/* Services */}
                     <div className="mb-4">
                         <label className="block text-lg font-bold mb-2">Type of Service*</label>
-                        <input
-                            type="text"
+                        <select
                             className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="Pet walking, Grooming, etc."
                             value={formData.services}
                             onChange={(e) => handleInputChange('services', e.target.value)}
-                        />
+                        >
+                            <option value="">Select a service</option>
+                            {Object.values(Service).map((service) => (
+                                <option key={service} value={service}>{service}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Rates */}
@@ -104,32 +248,42 @@ const AddServiceProfile = () => {
                     {/* Availability */}
                     <div className="mb-4">
                         <label className="block text-lg font-bold mb-2">Availability*</label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="Saturday afternoons, etc."
-                            value={formData.availability}
-                            onChange={(e) => handleInputChange('availability', e.target.value)}
-                        />
+                        <div className="grid grid-cols-3 gap-2">
+                            {Object.values(Availability).map((day) => (
+                                <button
+                                    key={day}
+                                    type="button"
+                                    onClick={() => handleMultiSelectChange('availability', day)}
+                                    className={`p-2 border rounded ${formData.availability.includes(day) ? 'bg-orange-500 text-white' : 'border-orange-500'}`}
+                                >
+                                    {day}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Location */}
                     <div className="mb-4">
                         <label className="block text-lg font-bold mb-2">Location*</label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="Your location"
-                            value={formData.location}
-                            onChange={(e) => handleInputChange('location', e.target.value)}
-                        />
+                        <div className="grid grid-cols-3 gap-2">
+                            {Object.values(Location).map((location) => (
+                                <button
+                                    key={location}
+                                    type="button"
+                                    onClick={() => handleMultiSelectChange('location', location)}
+                                    className={`p-2 border rounded ${formData.location.includes(location) ? 'bg-orange-500 text-white' : 'border-orange-500'}`}
+                                >
+                                    {location}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                {/* Save Button */}
                 <button
                     onClick={handleSubmit}
                     className="poppins w-full bg-orange-500 text-white p-3 rounded mt-4"
+                    // disabled={!isFormValid}
                 >
                     Save
                 </button>

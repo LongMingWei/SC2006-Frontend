@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 // import axios from 'axios';
+// import axios from 'axios';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -17,15 +18,18 @@ const Register = () => {
   };
   const handleRegister = async () => {
     // Basic validation
+    // Basic validation
     if (!username || !email || !password || !confirmPassword || !termsAccepted) {
       alert('Please fill in all fields and accept the terms and conditions');
       return;
     }
   
+  
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
+  
   
     try {
       // Send the POST request to the FastAPI backend
@@ -41,10 +45,12 @@ const Register = () => {
         }),
       });
   
+  
       if (!response.ok) {
         const errorData = await response.json();  // Get the error response
         throw new Error(errorData.detail || 'Failed to register. Please try again.');
       }
+  
   
       const data = await response.json();
       console.log('User registered:', data);
@@ -57,7 +63,6 @@ const Register = () => {
       alert('Failed to register. Please try again.');
     }
   };
-  
   
   
 
@@ -133,6 +138,8 @@ const Register = () => {
           </span>.
         </p>
       </div>
+
+
 
 
 
