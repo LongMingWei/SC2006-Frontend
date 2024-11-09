@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,73 @@ const Register = () => {
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
+
+
+  const handleRegister = async () => {
+    if (!username || !email || !password || !confirmPassword || !termsAccepted) {
+      alert('Please fill in all fields and accept the terms and conditions');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/users/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to register. Please try again.');
+      }
+
+      const data = await response.json();
+      console.log('User registered:', data);
+      window.location.href = '/signout/signup/createProfile';
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unknown error occurred');
+      }
+    }
+  };
+  [/*const handleRegister = async () => {
+    if (!username || !email || !password || !confirmPassword || !termsAccepted) {
+      alert('Please fill in all fields and accept the terms and conditions');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8000/users/', {
+        username,
+        email,
+        password,
+      });
+      console.log('User registered:', response.data);
+      // Redirect to profile creation after successful registration
+      window.location.href = '/signout/signup/createProfile';
+    } catch (error) {
+      console.error('Error registering user:', error);
+      alert('Failed to register. Please try again.');
+    }
+  };*/]//end of modification
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-white">
