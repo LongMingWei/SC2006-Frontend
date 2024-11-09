@@ -185,23 +185,6 @@ const AddServiceProfile = () => {
         }
     };
 
-    const pickImage = async () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (event: any) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setImage(reader.result as string);
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-        input.click();
-    };
-
     return (
         <div className="flex flex-col items-center p-5 bg-white min-h-screen">
             <div className="w-full max-w-md">
@@ -214,7 +197,7 @@ const AddServiceProfile = () => {
                     ) : (
                         <Image src="/doggrooming.png" alt="Service" width={300} height={150} className="rounded-lg border border-orange-500 mt-2" />
                     )}
-                    <button onClick={pickImage} className="poppins text-blue-500 underline mt-4">Add service picture</button>
+                    {/* <button onClick={pickImage} className="poppins text-blue-500 underline mt-4">Add service picture</button> */}
                 </div>
 
                 <div className="poppins mt-6">
