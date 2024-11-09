@@ -22,6 +22,7 @@ const AddServiceProfile = () => {
     };
 
     useEffect(() => {
+        // Ensure that the required fields are filled in
         const requiredFieldsFilled =
             formData.petName !== '' &&
             formData.species !== '' &&
@@ -31,38 +32,86 @@ const AddServiceProfile = () => {
         setIsFormValid(requiredFieldsFilled);
     }, [formData]);
 
-    // Handle form submission
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (isFormValid) {
-            // Perform form submission logic here
-            console.log(formData);
-            alert("Success: Services saved successfully!");
+            try {
+                // Retrieve the access token and user ID from sessionStorage
+                const access_token = sessionStorage.getItem('access_token');
+                const user_id = sessionStorage.getItem('user_id');
+
+                // Check if accessToken or userId is null
+                if (!access_token || !user_id) {
+                    alert("Error: Access token or user ID is missing. Please log in again.");
+                    return;
+                }
+
+                // Convert age to a float (as backend expects a float for pet_age)
+                const dataToSend = {
+                    pet_name: formData.petName,
+                    pet_species: formData.species,
+                    pet_breed: formData.breed,
+                    pet_age: parseFloat(formData.age), // Convert age to float
+                    pet_health: formData.healthConditions || 'Healthy', // Default to 'Healthy' if empty
+                    pet_preferences: formData.preferences || null, // Default to null if empty
+                };
+
+                // Make the API request to save the pet profile, with userId in the URL
+                const response = await fetch(`http://localhost:8000/pet/${user_id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access_token}`, // Use the token from sessionStorage
+                    },
+                    body: JSON.stringify(dataToSend), // Send the data as JSON
+                });
+
+                // Handle response
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log(result);
+                    alert("Success: Pet profile saved successfully!");
+                } else {
+                    const errorData = await response.json();
+                    console.error("Error response:", errorData);
+                    alert("Error: Unable to save profile. Please try again.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Error: Network error occurred.");
+            }
         } else {
             alert("Error: Please fill out all required fields.");
         }
     };
-
-    const pickImage = async () => {
-        // Image picking logic for web
+    const pickImage = () => {
+        // Create a file input element programmatically
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = (event: any) => {
-            const file = event.target.files[0];
+        input.accept = 'image/*'; // Allow only image files
+        input.onchange = (e: any) => {
+            // Handle the file selection
+            const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    setImage(reader.result as string);
+                    setImage(reader.result as string); // Set the selected image URL to the state
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(file); // Convert the image to base64 and store it in the image state
             }
         };
-        input.click();
+        input.click(); // Simulate a click on the file input to open the file dialog
     };
+    
 
     return (
         <div className="flex flex-col items-center p-5 bg-white min-h-screen">
             <div className="w-full max-w-md">
+                {/* Back Arrow */}
+                <div className="absolute top-6 left-4">
+                    <Link href="/signout/signup/createProfile/petOwnerProfile">
+                        <Image src="/back_arrow.png" alt="Back to homepage" width={32} height={32} />
+                    </Link>
+                </div>
                 {/* Title and pet image */}
                 <h2 className="jua text-3xl font-bold text-center mt-4">Create Pet Profile</h2>
                 <h3 className="jua text-2xl font-bold text-center text-orange-500 mt-2">Pet</h3>
@@ -106,7 +155,7 @@ const AddServiceProfile = () => {
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="Chihuahua, gold retriever, etc."
+                            placeholder="Chihuahua, golden retriever, etc."
                             value={formData.breed}
                             onChange={(e) => handleInputChange('breed', e.target.value)}
                         />
@@ -159,3 +208,5 @@ const AddServiceProfile = () => {
 };
 
 export default AddServiceProfile;
+
+

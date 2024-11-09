@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
+// import axios from 'axios';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -15,73 +15,51 @@ const Register = () => {
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
-
-
   const handleRegister = async () => {
+    // Basic validation
     if (!username || !email || !password || !confirmPassword || !termsAccepted) {
       alert('Please fill in all fields and accept the terms and conditions');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-
+  
     try {
-      const response = await fetch('http://localhost:8000/users/', {
+      // Send the POST request to the FastAPI backend
+      const response = await fetch('http://localhost:8000/users', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json',  // Use 'application/json' for JSON payload
         },
         body: JSON.stringify({
-          username,
-          email,
-          password,
+          username,  // username to register
+          email,     // email to register
+          password  // password to register
         }),
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to register. Please try again.');
+        const errorData = await response.json();  // Get the error response
+        throw new Error(errorData.detail || 'Failed to register. Please try again.');
       }
-
+  
       const data = await response.json();
       console.log('User registered:', data);
-      window.location.href = '/signout/signup/createProfile';
-    } catch (error) {
-      console.error(error);
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert('An unknown error occurred');
-      }
-    }
-  };
-  [/*const handleRegister = async () => {
-    if (!username || !email || !password || !confirmPassword || !termsAccepted) {
-      alert('Please fill in all fields and accept the terms and conditions');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-
-    try {
-      const response = await axios.post('http://localhost:8000/users/', {
-        username,
-        email,
-        password,
-      });
-      console.log('User registered:', response.data);
-      // Redirect to profile creation after successful registration
-      window.location.href = '/signout/signup/createProfile';
+      alert('Successfully registered!')
+  
+      // Optionally, redirect after successful registration
+      window.location.href = '/signout/login'; // Redirect to the next page
     } catch (error) {
       console.error('Error registering user:', error);
       alert('Failed to register. Please try again.');
     }
-  };*/]//end of modification
+  };
+  
+  
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-white">
@@ -156,20 +134,12 @@ const Register = () => {
         </p>
       </div>
 
+
+
       {/* Register Button */}
       <button
         className="poppins bg-orange-500 text-white py-2 px-4 rounded mt-6"
-        onClick={() => {
-          if (username && email && password && confirmPassword && termsAccepted) {
-            if (password === confirmPassword) {
-              window.location.href = '/signout/signup/createProfile';
-            } else {
-              alert('Passwords do not match');
-            }
-          } else {
-            alert('Please fill in all fields and accept the terms and conditions');
-          }
-        }}
+        onClick={handleRegister}  // Call the handleRegister function here
       >
         Register
       </button>

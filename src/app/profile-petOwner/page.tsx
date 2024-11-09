@@ -33,93 +33,101 @@ interface Profile {
   pet: Pet[];
 }
 
-const userId = 1;
-1
-  const ProfileCard: React.FC<{
-    name:string;
-    email: string;
-    username: string;
-    imgUrl:string;
-  }> = ({ name, email, username, imgUrl }) => (
-    <div className="bg-orange-50 rounded-lg p-4 mb-6 flex justify-between items-center">
-      <div>
-        <h2 className="jua text-xl font-bold mb-1">Welcome, {name}!</h2>
-        <p className="poppins text-sm text-gray-600">{email}</p>
-        <p className="poppins text-sm text-gray-600">{username}</p>
-        <Link href="/edit-profile" className="poppins text-orange-400 text-sm">Edit profile &gt;</Link>
-      </div>
-      <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full" />
+const ProfileCard: React.FC<{
+  name: string;
+  email: string;
+  username: string;
+  imgUrl: string;
+}> = ({ name, email, username, imgUrl }) => (
+  <div className="bg-orange-50 rounded-lg p-4 mb-6 flex justify-between items-center">
+    <div>
+      <h2 className="jua text-xl font-bold mb-1">Welcome, {name}!</h2>
+      <p className="poppins text-sm text-gray-600">{email}</p>
+      <p className="poppins text-sm text-gray-600">{username}</p>
+      <Link href="/edit-profile" className="poppins text-orange-400 text-sm">Edit profile &gt;</Link>
     </div>
-  );
-  
+    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full" />
+  </div>
+);
 
-  const PetCard: React.FC<{
-    name: string;
-    age: string;
-    imgUrl: string;
-  }> = ({ name, age, imgUrl }) => (
-    <div className="poppins bg-orange-50 rounded-lg p-4 w-[280px] flex items-center">
-      <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-lg mr-4" />
-      <div>
-        <h3 className="font-bold">{name}</h3>
-        <p className="text-sm text-gray-600">{age}</p>
-        <Link href="/edit-pet" className="text-orange-400 text-sm">Edit pet profile &gt;</Link>
-      </div>
+const PetCard: React.FC<{
+  name: string;
+  age: string;
+  imgUrl: string;
+}> = ({ name, age, imgUrl }) => (
+  <div className="poppins bg-orange-50 rounded-lg p-4 w-[280px] flex items-center">
+    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-lg mr-4" />
+    <div>
+      <h3 className="font-bold">{name}</h3>
+      <p className="text-sm text-gray-600">{age}</p>
+      <Link href="/edit-pet" className="text-orange-400 text-sm">Edit pet profile &gt;</Link>
     </div>
-  );
-  
-  const AddPetButton = () => (
-    <button className="bg-orange-300 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl">+</button>
-  );
+  </div>
+);
 
-  const GeneralItem: React.FC<{
-    text:string;
-    link: string;
-    isDelete?: boolean;
-  }> = ({ text, link, isDelete = false }) => (
-    <Link href={link} className={`py-4 flex justify-between items-center border-b ${isDelete ? 'text-red-500' : ''}`}>
-      {text}
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-    </Link>
-  );
-  
-  const ProfilePage: React.FC = () => {
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [pets, setPets] = useState<Pet[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const AddPetButton = () => (
+  <button className="bg-orange-300 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl">+</button>
+);
 
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3MzExNDEyNzB9.lp2XWXRWK8SU5UGkdOprdiLs8_6k3wBUNT8DEr19jbc"
+const GeneralItem: React.FC<{
+  text: string;
+  link: string;
+  isDelete?: boolean;
+}> = ({ text, link, isDelete = false }) => (
+  <Link href={link} className={`py-4 flex justify-between items-center border-b ${isDelete ? 'text-red-500' : ''}`}>
+    {text}
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  </Link>
+);
 
-    const config = {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+const ProfilePage: React.FC = () => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Retrieve user ID and access token from sessionStorage
+  const userId = sessionStorage.getItem('user_id');
+  const accessToken = sessionStorage.getItem('access_token');
+
+  // Check if user ID and token exist in sessionStorage
+  if (!userId || !accessToken) {
+    // Handle the case where the user is not logged in or the data is missing
+    // Optionally, redirect them to login or show an error
+    return <div>Please log in to view your profile.</div>;
+  }
+
+  const config = {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch user profile data using the dynamic userId
+        const response = await axios.get<Profile>(`http://localhost:8000/petowner/${userId}`, config);
+        setProfile(response.data);
+        setPets(response.data.pet || []);  // Set pet data if available
+        console.log(response.data);
+        setError(null);
+      }catch (err) {
+          setProfile(null);
+          setPets([]);
+        
+      } finally {
+        setLoading(false);
       }
     };
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          setLoading(true);
-          const response = await axios.get<Profile>(`http://localhost:8000/petowner/${userId}`, config);
-          setProfile(response.data);
-          setPets(response.data.pet || []);
-          console.log(response.data)
-          setError(null);
-        } catch (err) {
-          setProfile(null);
-          setPets([]);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    }, []); // Empty dependency array means this runs once on mount
-
+    fetchData();
+  }, [userId, accessToken]); // Dependency array includes userId and accessToken
+  ////////////////////////////////
 
     if (loading) {
       return "Loading..."
