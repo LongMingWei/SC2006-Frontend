@@ -91,9 +91,11 @@ const ServiceCard: React.FC<{
 
 const AddServiceButton: React.FC = () => (
   <div className="flex-shrink-0 flex items-center h-[160px]">
-    <button className="bg-[#F4B183] text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl hover:bg-[#eb9e67] transition-colors">
-      +
-    </button>
+    <Link href="/signout/signup/createProfile/caretakerProfile/addService">
+      <button className="bg-[#F4B183] text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl hover:bg-[#eb9e67] transition-colors">
+        +
+      </button>
+    </Link>
   </div>
 );
 

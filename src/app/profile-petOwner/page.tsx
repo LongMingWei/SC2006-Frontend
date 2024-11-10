@@ -11,16 +11,17 @@ interface User {
   id: number;
   username: string;
   email: string;
-  created_at: string;  // ISO date string
+  created_at: string;
 }
 
 interface Pet {
+  pet_id: number;
   pet_name: string;
   pet_species: string;
   pet_breed: string;
   pet_age: number;
   pet_health: string;
-  pet_preferences: string;
+  pet_preferences: string | null;
 }
 
 interface Profile {
@@ -50,19 +51,31 @@ const ProfileCard: React.FC<{
 );
 
 const PetCard: React.FC<{
-  name: string;
-  age: string;
+  pet: Pet;
   imgUrl: string;
-}> = ({ name, age, imgUrl }) => (
-  <div className="poppins bg-orange-50 rounded-lg p-4 w-[280px] flex items-center">
-    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-lg mr-4" />
-    <div>
-      <h3 className="font-bold">{name}</h3>
-      <p className="text-sm text-gray-600">{age}</p>
-      <Link href="/edit-pet" className="text-orange-400 text-sm">Edit pet profile &gt;</Link>
+}> = ({ pet, imgUrl }) => {
+  const handleEditClick = () => {
+    console.log('Setting pet_id:', pet.pet_id); // Debug log
+    sessionStorage.setItem('pet_id', pet.pet_id.toString());
+  };
+
+  return (
+    <div className="poppins bg-orange-50 rounded-lg p-4 w-[280px] flex items-center">
+      <Image src={imgUrl} alt={pet.pet_name} width={60} height={60} className="rounded-lg mr-4" />
+      <div>
+        <h3 className="font-bold">{pet.pet_name}</h3>
+        <p className="text-sm text-gray-600">{pet.pet_age} Years</p>
+        <Link 
+          href="/edit-pet" 
+          className="text-orange-400 text-sm"
+          onClick={handleEditClick}
+        >
+          Edit pet profile &gt;
+        </Link>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AddPetButton = () => (
   <button className="bg-orange-300 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl">+</button>
@@ -85,16 +98,14 @@ const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
-      // Get token and userId from sessionStorage
       const token = sessionStorage.getItem('access_token');
       const userId = sessionStorage.getItem('user_id');
 
-      // If no token or userId, redirect to login
       if (!token || !userId) {
         router.push('/login');
         return;
@@ -110,27 +121,41 @@ const ProfilePage: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get<Profile>(`http://localhost:8000/petowner/${userId}`, config);
+        console.log('Profile data:', response.data); // Debug log
         setProfile(response.data);
         setPets(response.data.pet || []);
         setError(null);
       } catch (err: any) {
+        console.error('Error fetching profile:', err);
         setProfile(null);
         setPets([]);
-        // If unauthorized, redirect to login
         if (err.response?.status === 401) {
           sessionStorage.clear();
           router.push('/login');
         }
+        setError(err.response?.data?.detail || 'Failed to fetch profile');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []); // Empty dependency array means this runs once on mount
+  }, [router]);
 
   if (loading) {
-    return "Loading..."
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B3D]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-red-500">
+        Error: {error}
+      </div>
+    );
   }
 
   return (
@@ -140,24 +165,25 @@ const ProfilePage: React.FC = () => {
         <ProfileCard 
           name={profile?.name || "Loading..."} 
           email={profile?.user.email || "Loading..."} 
-          username={`@${profile?.user.username}`} 
+          username={`@${profile?.user.username || "loading"}`} 
           imgUrl="/johndoe.png" 
         />
         
         <h2 className="text-2xl font-bold mb-4">My Pets</h2>
         <div className="relative">
           <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
-            {pets.map((pet) => (
-              <div key={pet.pet_name} className="flex-shrink-0">
-                <PetCard 
-                  name={pet.pet_name}
-                  age={`${pet.pet_age} Years`}
-                  imgUrl="/kimmydog.png" 
-                />
-              </div>
-            ))}
+          {pets.map((pet) => (
+          <div key={pet.pet_id} className="flex-shrink-0">
+            <PetCard 
+              pet={pet}
+              imgUrl="/kimmydog.png" 
+            />
+          </div>
+        ))}
             <div className="flex-shrink-0 flex items-center">
-              <AddPetButton />
+              <Link href="/signout/signup/createProfile/petOwnerProfile/addPet">
+                <AddPetButton />
+              </Link>
             </div>
           </div>
         </div>

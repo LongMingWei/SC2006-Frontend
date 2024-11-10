@@ -21,6 +21,11 @@ const ChangePassword: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const getProfilePath = () => {
+    const profileType = Number(sessionStorage.getItem('profile_type'));
+    return profileType === 2 ? '/profile-caretaker' : '/profile-petOwner';
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -83,7 +88,7 @@ const ChangePassword: React.FC = () => {
           confirmPassword: ''
         });
         setTimeout(() => {
-          router.push('/profile-petOwner');
+          router.push(getProfilePath());
         }, 1500);
       }
     } catch (err) {
@@ -103,12 +108,14 @@ const ChangePassword: React.FC = () => {
     }
   };
 
+  const profilePath = getProfilePath();
+
   return (
     <main className="p-6 max-w-lg mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Change Password</h1>
         <button 
-          onClick={() => router.push('/profile-petOwner')}
+          onClick={() => router.push(profilePath)}
           className="text-gray-600"
         >
           ✕
@@ -178,7 +185,7 @@ const ChangePassword: React.FC = () => {
         <div className="flex space-x-4">
           <button 
             type="button" 
-            onClick={() => router.push('/profile-petOwner')}
+            onClick={() => router.push(profilePath)}
             className="w-1/2 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
           >
             Cancel
