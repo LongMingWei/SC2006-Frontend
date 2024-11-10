@@ -1,20 +1,78 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faSearch, faComment, faUser } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+
+interface UserData {
+  name: string;
+  user: {
+    username: string;
+  };
+}
 
 const TabbedMenu = () => {
   const pathname = usePathname();
+  const [profilePath, setProfilePath] = useState('/profile-petOwner');
+  const [userName, setUserName] = useState('User');
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const token = sessionStorage.getItem('access_token');
+      const userId = sessionStorage.getItem('user_id');
+      const profileType = Number(sessionStorage.getItem('profile_type'));
+
+      if (!token || !userId) return;
+
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      try {
+        const endpoint = profileType === 2 
+          ? `http://localhost:8000/caretaker/${userId}`
+          : `http://localhost:8000/petowner/${userId}`;
+
+        const response = await axios.get<UserData>(endpoint, config);
+        setUserName(response.data.name || response.data.user.username);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    }
+
+    function checkProfileType() {
+      const profileType = Number(sessionStorage.getItem('profile_type'));
+      const newPath = profileType === 2 ? '/profile-caretaker' : '/profile-petOwner';
+      setProfilePath(newPath);
+      // Fetch user data whenever profile type changes
+      fetchUserData();
+    }
+
+    // Initial fetch and check
+    checkProfileType();
+
+    // Set up an interval to periodically check for updates
+    const interval = setInterval(fetchUserData, 1000); // Check every second
+
+    return () => {
+      clearInterval(interval); // Clean up interval on unmount
+    };
+  }, [pathname]); // Re-run when pathname changes
+
   const tabs = [
     { href: '/homepage', icon: faHome, label: 'Home' },
     { href: '/search', icon: faSearch, label: 'Search' },
     { href: '/messages', icon: faComment, label: 'Chat' },
-    { href: '/profile-petOwner', icon: faUser, label: 'Profile' },
+    { href: profilePath, icon: faUser, label: 'Profile' },
   ];
 
-  const hiddenPaths = ['/signout']; // Add paths where the menu should not be displayed
+  const hiddenPaths = ['/signout'];
 
   if (hiddenPaths.some(hiddenPath => pathname.includes(hiddenPath))) {
     return null;
@@ -24,7 +82,7 @@ const TabbedMenu = () => {
     <>
       <div className="fixed top-0 left-0 right-0 flex justify-between bg-white dark:bg-black p-4 border-b border-gray-200 dark:border-gray-700">
         <span className="jua text-xl font-bold text-orange-500">PetBuddy</span>
-        <span className="poppinsbold text-l text-orange-500">Hello, User</span>
+        <span className="poppinsbold text-l text-orange-500">Hello, {userName}</span>
       </div>
       <div className="fixed bottom-0 left-0 right-0 flex justify-around bg-white dark:bg-black p-4 border-t border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => (
