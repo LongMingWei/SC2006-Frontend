@@ -11,7 +11,7 @@ interface ProfileFormData {
   name: string;
   dob: string;
   gender: 'male' | 'female' | 'other';
-  work_exp: number;
+  location: string;
 }
 
 // Interface for API response
@@ -19,7 +19,7 @@ interface ProfileResponse {
   name: string;
   dob: string;
   gender: 'male' | 'female' | 'other';
-  work_exp: number;
+  location: string;
   user: {
     id: number;
     username: string;
@@ -30,49 +30,60 @@ interface ProfileResponse {
 
 const EditProfile: React.FC = () => {
   const router = useRouter();
-  const userId = 2;
   const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
     dob: '',
     gender: 'male',
-    work_exp: 0
+    location: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE3MzExNTc5MjN9.TK2kicGLvShZfm2gJu5PTWlq1PEIfwyS6rRuWoIOrJo"
-
-  const config = {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  };
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const token = sessionStorage.getItem('access_token');
+      const userId = sessionStorage.getItem('user_id');
+
+      if (!token || !userId) {
+        router.push('/login');
+        return;
+      }
+
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
       try {
         setLoading(true);
         const response = await axios.get<ProfileResponse>(
-          `http://localhost:8000/caretaker/${userId}`,
+          `http://localhost:8000/petowner/${userId}`,
           config
         );
         const profileData = response.data;
         
-        // Format the date from the backend to YYYY-MM-DD
         const formattedDate = new Date(profileData.dob).toISOString().split('T')[0];
         
         setFormData({
           name: profileData.name,
           dob: formattedDate,
           gender: profileData.gender,
-          work_exp: Number(profileData.work_exp)
+          location: profileData.location
         });
 
+        setUsername(profileData.user.username);
         console.log('Fetched profile data:', profileData);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching profile:', err);
+        if (err.response?.status === 401) {
+          sessionStorage.clear();
+          router.push('/login');
+          return;
+        }
         setError(err instanceof Error ? err.message : 'Failed to fetch profile data');
       } finally {
         setLoading(false);
@@ -80,7 +91,7 @@ const EditProfile: React.FC = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -95,15 +106,33 @@ const EditProfile: React.FC = () => {
     setError(null);
     setSuccess(false);
     
+    const token = sessionStorage.getItem('access_token');
+    const userId = sessionStorage.getItem('user_id');
+
+    if (!token || !userId) {
+      router.push('/login');
+      return;
+    }
+
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+    
     try {
       const formattedData = {
-        ...formData,
+        name: formData.name,
         dob: new Date(formData.dob).toISOString().split('T')[0],
-        work_exp: Number(formData.work_exp)
+        gender: formData.gender,
+        location: formData.location
       };
 
+      console.log('Sending data:', formattedData);
+
       const response = await axios.put(
-        `http://localhost:8000/caretaker/${userId}`,
+        `http://localhost:8000/petowner/${userId}`,
         formattedData,
         config
       );
@@ -111,12 +140,17 @@ const EditProfile: React.FC = () => {
       if (response.status === 200) {
         setSuccess(true);
         setTimeout(() => {
-          router.push('/profile');
+          router.push('/profile-petOwner');
         }, 1000);
       }
     } catch (err) {
       console.error('Error updating profile:', err);
       if (axios.isAxiosError(err) && err.response) {
+        if (err.response.status === 401) {
+          sessionStorage.clear();
+          router.push('/login');
+          return;
+        }
         setError(err.response.data.detail || 'Failed to update profile');
       } else {
         setError('Failed to update profile');
@@ -134,11 +168,6 @@ const EditProfile: React.FC = () => {
 
   return (
     <main className="p-6 max-w-lg mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-[#FF6B3D] text-2xl font-bold">PetBuddy</h1>
-        <div>Hello, User</div>
-      </div>
-
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
           Profile updated successfully! Redirecting...
@@ -216,19 +245,17 @@ const EditProfile: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="work_exp" className="block text-gray-700 mb-2">
-            Work Experience (years)<span className="text-red-500">*</span>
+          <label htmlFor="location" className="block text-gray-700 mb-2">
+            Location<span className="text-red-500">*</span>
           </label>
           <input
-            type="number"
-            id="work_exp"
-            name="work_exp"
-            value={formData.work_exp}
+            type="text"
+            id="location"
+            name="location"
+            value={formData.location}
             onChange={handleChange}
             className="w-full p-3 border border-[#FF6B3D] rounded-lg"
             required
-            min="0"
-            step="1"
           />
         </div>
 

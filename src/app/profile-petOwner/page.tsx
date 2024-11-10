@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 // Types for user data
 interface User {
@@ -13,7 +14,6 @@ interface User {
   created_at: string;  // ISO date string
 }
 
-// Type for pet details
 interface Pet {
   pet_name: string;
   pet_species: string;
@@ -23,10 +23,9 @@ interface Pet {
   pet_preferences: string;
 }
 
-// Main profile interface
 interface Profile {
   name: string;
-  dob: string;        // ISO date string in format YYYY-MM-DD
+  dob: string;
   gender: 'male' | 'female' | 'other';
   location: string;
   user: User;
@@ -44,7 +43,7 @@ const ProfileCard: React.FC<{
       <h2 className="jua text-xl font-bold mb-1">Welcome, {name}!</h2>
       <p className="poppins text-sm text-gray-600">{email}</p>
       <p className="poppins text-sm text-gray-600">{username}</p>
-      <Link href="/edit-profile" className="poppins text-orange-400 text-sm">Edit profile &gt;</Link>
+      <Link href="/editprofile-petOwner" className="poppins text-orange-400 text-sm">Edit profile &gt;</Link>
     </div>
     <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full" />
   </div>
@@ -87,93 +86,91 @@ const ProfilePage: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Retrieve user ID and access token from sessionStorage
-  const userId = sessionStorage.getItem('user_id');
-  const accessToken = sessionStorage.getItem('access_token');
-
-  // Check if user ID and token exist in sessionStorage
-  if (!userId || !accessToken) {
-    // Handle the case where the user is not logged in or the data is missing
-    // Optionally, redirect them to login or show an error
-    return <div>Please log in to view your profile.</div>;
-  }
-
-  const config = {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    }
-  };
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
+      // Get token and userId from sessionStorage
+      const token = sessionStorage.getItem('access_token');
+      const userId = sessionStorage.getItem('user_id');
+
+      // If no token or userId, redirect to login
+      if (!token || !userId) {
+        router.push('/login');
+        return;
+      }
+
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
       try {
         setLoading(true);
-        // Fetch user profile data using the dynamic userId
         const response = await axios.get<Profile>(`http://localhost:8000/petowner/${userId}`, config);
         setProfile(response.data);
-        setPets(response.data.pet || []);  // Set pet data if available
-        console.log(response.data);
+        setPets(response.data.pet || []);
         setError(null);
-      }catch (err) {
-          setProfile(null);
-          setPets([]);
-        
+      } catch (err: any) {
+        setProfile(null);
+        setPets([]);
+        // If unauthorized, redirect to login
+        if (err.response?.status === 401) {
+          sessionStorage.clear();
+          router.push('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [userId, accessToken]); // Dependency array includes userId and accessToken
-  ////////////////////////////////
+  }, []); // Empty dependency array means this runs once on mount
 
-    if (loading) {
-      return "Loading..."
-    }
+  if (loading) {
+    return "Loading..."
+  }
 
-    return (
-      <div className="poppins bg-white min-h-screen">
-        <main className="p-4">
-          <h2 className="jua text-2xl font-bold mb-4">Profile</h2>
-          <ProfileCard 
-            name={profile?.name || "Loading..."} 
-            email={profile?.user.email || "Loading..."} 
-            username={`@${profile?.user.username}`} 
-            imgUrl="/johndoe.png" 
-          />
-          
-          <h2 className="text-2xl font-bold mb-4">My Pets</h2>
-          <div className="relative">
-            <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
-              {pets.map((pet) => (
-                <div key={pet.pet_name} className="flex-shrink-0">
-                  <PetCard 
-                    name={pet.pet_name}
-                    age={`${pet.pet_age} Years`}
-                    imgUrl="/kimmydog.png" 
-                  />
-                </div>
-              ))}
-              <div className="flex-shrink-0 flex items-center">
-                <AddPetButton />
+  return (
+    <div className="poppins bg-white h-full pb-20">
+      <main className="p-4">
+        <h2 className="jua text-2xl font-bold mb-4">Profile</h2>
+        <ProfileCard 
+          name={profile?.name || "Loading..."} 
+          email={profile?.user.email || "Loading..."} 
+          username={`@${profile?.user.username}`} 
+          imgUrl="/johndoe.png" 
+        />
+        
+        <h2 className="text-2xl font-bold mb-4">My Pets</h2>
+        <div className="relative">
+          <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
+            {pets.map((pet) => (
+              <div key={pet.pet_name} className="flex-shrink-0">
+                <PetCard 
+                  name={pet.pet_name}
+                  age={`${pet.pet_age} Years`}
+                  imgUrl="/kimmydog.png" 
+                />
               </div>
+            ))}
+            <div className="flex-shrink-0 flex items-center">
+              <AddPetButton />
             </div>
           </div>
-          
-          <h2 className="text-2xl font-bold mb-4">General</h2>
-          <div className="bg-white">
-            <GeneralItem text="Booking History" link="/booking-history" />
-            <GeneralItem text="Payment History" link="/payment-history" />
-            <GeneralItem text="Payment Settings" link="/payment-settings" />
-            <GeneralItem text="Change Password" link="/change-password" />
-            <GeneralItem text="Emergency Contact Update" link="/emergency-contact" />
-            <GeneralItem text="Delete Account" link="/delete-account" isDelete={true} />
-          </div>
-        </main>
-      </div>
-    );
-  };
-  
-  export default ProfilePage;
+        </div>
+        
+        <h2 className="text-2xl font-bold mb-4">General</h2>
+        <div className="bg-white">
+          <GeneralItem text="Booking History" link="/booking-history" />
+          <GeneralItem text="Payment History" link="/payment-history" />
+          <GeneralItem text="Change Password" link="/change-password" />
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default ProfilePage;
