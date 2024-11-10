@@ -45,6 +45,9 @@ const Login = () => {
 
           const profileType= await profileResponse.json();
           sessionStorage.setItem('profile_type', profileType); 
+
+          // Dispatch storage event
+          window.dispatchEvent(new Event('storage'));
           
           // Redirect based on whether the profile exists
           if (profileType != -1) {

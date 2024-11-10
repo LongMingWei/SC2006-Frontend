@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const AddServiceProfile = () => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         petName: '',
         species: '',
@@ -70,6 +72,7 @@ const AddServiceProfile = () => {
                     const result = await response.json();
                     console.log(result);
                     alert("Success: Pet profile saved successfully!");
+                    router.push('/homepage');
                 } else {
                     const errorData = await response.json();
                     console.error("Error response:", errorData);
@@ -138,7 +141,7 @@ const AddServiceProfile = () => {
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="6 months, 1 year, etc."
+                            placeholder="1 year, etc."
                             value={formData.age}
                             onChange={(e) => handleInputChange('age', e.target.value)}
                         />

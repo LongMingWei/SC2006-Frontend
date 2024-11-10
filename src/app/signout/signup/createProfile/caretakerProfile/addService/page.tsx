@@ -222,7 +222,7 @@ const AddServiceProfile = () => {
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="$50/hr, etc."
+                            placeholder="50, etc."
                             value={formData.rates}
                             onChange={(e) => handleInputChange('rates', e.target.value)}
                         />
