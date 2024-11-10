@@ -24,7 +24,10 @@ const Register = () => {
       return;
     }
   
-  
+    if(password.length<6){
+      alert('Password must be at least 6 characters');
+      return;
+    }
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
@@ -105,7 +108,7 @@ const Register = () => {
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           type="password"
-          placeholder="Enter your password"
+          placeholder="Enter your password (at least 6 characters)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
