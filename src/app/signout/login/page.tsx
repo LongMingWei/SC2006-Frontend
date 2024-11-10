@@ -43,10 +43,11 @@ const Login = () => {
             },
           });
 
-          const profileExists = await profileResponse.json();
+          const profileType= await profileResponse.json();
+          sessionStorage.setItem('profile_type', profileType); 
           
           // Redirect based on whether the profile exists
-          if (profileExists) {
+          if (profileType != -1) {
             router.push('/homepage') // Redirect to homepage if profile exists
           } else {
             router.push('/signout/signup/createProfile'); // Redirect to profile creation if not
