@@ -23,6 +23,7 @@ interface User {
 const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [recipient, setRecipient] = useState<User | null>(null);
+  const [recipientProfilePicture, setRecipientProfilePicture] = useState('/johndoe.png');
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +35,7 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Fetch user details and messages
+  // Fetch user details, profile picture, and messages
   useEffect(() => {
     const fetchData = async () => {
       const token = sessionStorage.getItem('access_token');
@@ -49,6 +50,25 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setRecipient(userResponse.data);
+
+        // Fetch profile picture
+        try {
+          const pictureResponse = await axios.get(
+            `http://localhost:8000/users/${params.id}/profile-picture`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              responseType: 'blob'
+            }
+          );
+          const imageUrl = URL.createObjectURL(pictureResponse.data);
+          setRecipientProfilePicture(imageUrl);
+        } catch (pictureErr) {
+          console.log(`Error fetching profile picture for user ${params.id}`);
+          // Keep default profile picture if fetch fails
+        }
 
         // Then fetch messages using the username
         const messagesResponse = await axios.get<Message[]>(
@@ -73,6 +93,13 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
     };
 
     fetchData();
+
+    // Cleanup function to revoke object URL
+    return () => {
+      if (recipientProfilePicture.startsWith('blob:')) {
+        URL.revokeObjectURL(recipientProfilePicture);
+      }
+    };
   }, [params.id, router]);
 
   // Set up WebSocket connection
@@ -198,7 +225,13 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
           <Link href="/messages">
             <span className="text-orange-500 mr-4">←</span>
           </Link>
-          <Image src="/johndoe.png" alt={recipient?.username || 'User'} width={40} height={40} className="rounded-full mr-2" />
+          <Image 
+            src={recipientProfilePicture} 
+            alt={recipient?.username || 'User'} 
+            width={40} 
+            height={40} 
+            className="rounded-full object-cover w-[50px] h-[50px] mr-2"
+          />
           <span className="font-bold">{recipient?.username || 'User'}</span>
         </div>
       </div>

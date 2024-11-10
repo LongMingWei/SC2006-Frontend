@@ -46,7 +46,7 @@ const ProfileCard: React.FC<{
       <p className="poppins text-sm text-gray-600">{username}</p>
       <Link href="/editprofile-petOwner" className="poppins text-orange-400 text-sm">Edit profile &gt;</Link>
     </div>
-    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full" />
+    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full object-cover w-[60px] h-[60px]" />
   </div>
 );
 
@@ -99,7 +99,25 @@ const ProfilePage: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string>('/johndoe.png');
   const router = useRouter();
+
+  const fetchProfilePicture = async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/users/${userId}/profile-picture`,
+        {
+          headers: { 'Authorization': `Bearer ${sessionStorage.getItem('access_token')}` },
+          responseType: 'blob'
+        }
+      );
+      const imageUrl = URL.createObjectURL(response.data);
+      setProfilePicture(imageUrl);
+    } catch (err) {
+      console.log('Using default profile picture');
+      setProfilePicture('/johndoe.png');
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,10 +138,23 @@ const ProfilePage: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await axios.get<Profile>(`http://localhost:8000/petowner/${userId}`, config);
-        console.log('Profile data:', response.data); // Debug log
-        setProfile(response.data);
-        setPets(response.data.pet || []);
+        // Fetch profile data
+        const profileResponse = await axios.get<Profile>(
+          `http://localhost:8000/petowner/${userId}`, 
+          config
+        );
+
+        if (profileResponse.data) {
+          console.log('Profile data received:', profileResponse.data);
+          setProfile(profileResponse.data);
+        } else {
+          throw new Error('No profile data received');
+        }
+
+        // Fetch profile picture
+        await fetchProfilePicture(userId);
+
+        setPets(profileResponse.data.pet || []);
         setError(null);
       } catch (err: any) {
         console.error('Error fetching profile:', err);
@@ -141,6 +172,15 @@ const ProfilePage: React.FC = () => {
 
     fetchData();
   }, [router]);
+
+    // Cleanup useEffect for profile picture
+    useEffect(() => {
+      return () => {
+        if (profilePicture && profilePicture !== '/johndoe.png') {
+          URL.revokeObjectURL(profilePicture);
+        }
+      };
+    }, [profilePicture]);
 
   if (loading) {
     return (
@@ -166,7 +206,7 @@ const ProfilePage: React.FC = () => {
           name={profile?.name || "Loading..."} 
           email={profile?.user.email || "Loading..."} 
           username={`@${profile?.user.username || "loading"}`} 
-          imgUrl="/johndoe.png" 
+          imgUrl={profilePicture}
         />
         
         <h2 className="text-2xl font-bold mb-4">My Pets</h2>

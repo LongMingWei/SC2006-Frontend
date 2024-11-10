@@ -29,6 +29,24 @@ interface ProfileResponse {
 }
 
 const EditProfile: React.FC = () => {
+  const [profilePicture, setProfilePicture] = useState<string>('/johndoe.png');
+
+  const fetchProfilePicture = async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/users/${userId}/profile-picture`,
+        {
+          headers: { 'Authorization': `Bearer ${sessionStorage.getItem('access_token')}` },
+          responseType: 'blob'
+        }
+      );
+      const imageUrl = URL.createObjectURL(response.data);
+      setProfilePicture(imageUrl);
+    } catch (err) {
+      console.log('Using default profile picture');
+      setProfilePicture('/johndoe.png');
+    }
+  };
   const router = useRouter();
   const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
@@ -79,7 +97,8 @@ const EditProfile: React.FC = () => {
         });
 
         setUsername(profileData.user.username);
-        console.log('Fetched profile data:', profileData);
+        // Fetch profile picture
+        await fetchProfilePicture(userId);
       } catch (err: any) {
         console.error('Error fetching profile:', err);
         if (err.response?.status === 401) {
@@ -186,7 +205,7 @@ const EditProfile: React.FC = () => {
       <div className="flex flex-col items-center mb-8">
         <div className="relative w-24 h-24 mb-2">
           <Image
-            src="/johndoe.png"
+            src={profilePicture}
             alt="Profile Picture"
             layout="fill"
             objectFit="cover"

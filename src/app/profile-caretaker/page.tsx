@@ -34,7 +34,17 @@ interface Service {
   service_availability: DayOfWeek[];
   location: string[];
 }
-  
+ 
+interface BookingEvent {
+  start: string;
+  end: string;
+  location: string;
+  service: string;
+  status: string;
+  other_user_name: string;
+  pet_name: string;
+}
+
 const ProfileCard: React.FC<{
   name: string;
   email: string;
@@ -48,22 +58,23 @@ const ProfileCard: React.FC<{
       <p className="text-sm text-gray-600">{username}</p>
       <Link href="/editprofile-caretaker" className="text-orange-400 text-sm">Edit profile &gt;</Link>
     </div>
-    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full" />
+    <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-full object-cover w-[60px] h-[60px]" />
   </div>
 );
 
 const BookingCard: React.FC<{
   name: string;
-  age: string;
+  petName: string;
   date: string;
   location: string;
   imgUrl: string;
-}> = ({ name, age, date, location, imgUrl }) => (
+}> = ({ name, petName, date, location, imgUrl }) => (
   <div className="bg-orange-50 rounded-2xl p-4 mb-4 shadow-md w-48">
     <div className="flex items-center mb-2">
       <Image src={imgUrl} alt={name} width={60} height={60} className="rounded-lg mr-4" />
       <div>
-        <h3 className="font-bold text-xl">{name} <span className="font-normal text-sm">{age}</span></h3>
+        <h3 className="font-bold text-xl">{name}</h3>
+        <p className="text-sm text-gray-600">for {petName}</p>
         <p className="text-sm text-gray-600">{date}</p>
         <p className="text-sm text-gray-600">{location}</p>
       </div>
@@ -114,17 +125,34 @@ const GeneralItem: React.FC<{
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [bookings, setBookings] = useState<BookingEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [profilePicture, setProfilePicture] = useState<string>('/johndoe.png');
   const router = useRouter();
+
+  const fetchProfilePicture = async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/users/${userId}/profile-picture`,
+        {
+          headers: { 'Authorization': `Bearer ${sessionStorage.getItem('access_token')}` },
+          responseType: 'blob'
+        }
+      );
+      const imageUrl = URL.createObjectURL(response.data);
+      setProfilePicture(imageUrl);
+    } catch (err) {
+      console.log('Using default profile picture');
+      setProfilePicture('/johndoe.png');
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      // Get token and userId from sessionStorage
       const token = sessionStorage.getItem('access_token');
       const userId = sessionStorage.getItem('user_id');
 
-      // If no token or userId, redirect to login
       if (!token || !userId) {
         router.push('/login');
         return;
@@ -139,12 +167,43 @@ const ProfilePage: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await axios.get<Profile>(`http://localhost:8000/caretaker/${userId}`, config);
-        setProfile(response.data);
+        // Fetch profile data
+        const profileResponse = await axios.get<Profile>(
+          `http://localhost:8000/caretaker/${userId}`, 
+          config
+        );
+
+        if (profileResponse.data) {
+          console.log('Profile data received:', profileResponse.data);
+          setProfile(profileResponse.data);
+        } else {
+          throw new Error('No profile data received');
+        }
+
+        // Fetch profile picture
+        await fetchProfilePicture(userId);
+
+        // Fetch bookings using the history endpoint
+        const bookingsResponse = await axios.get<{ events: BookingEvent[] }>(
+          `http://localhost:8000/calendar/history/${userId}`,
+          config
+        );
+        
+        if (bookingsResponse.data) {
+          // Filter for upcoming bookings
+          const upcomingBookings = bookingsResponse.data.events.filter(event => 
+            event.status === 'confirmed'
+          ).sort((a, b) => 
+            new Date(a.start).getTime() - new Date(b.start).getTime()
+          );
+
+          setBookings(upcomingBookings);
+        }
+
         setError(null);
       } catch (err: any) {
-        setProfile(null);
-        // If unauthorized, redirect to login
+        console.error('Error fetching data:', err);
+        setError(err.response?.data?.detail || 'Failed to load profile');
         if (err.response?.status === 401) {
           sessionStorage.clear();
           router.push('/login');
@@ -155,36 +214,84 @@ const ProfilePage: React.FC = () => {
     };
 
     fetchData();
-  }, []); // Empty dependency array means this runs once on mount
+  }, [router]);
+
+  // Cleanup useEffect for profile picture
+  useEffect(() => {
+    return () => {
+      if (profilePicture && profilePicture !== '/johndoe.png') {
+        URL.revokeObjectURL(profilePicture);
+      }
+    };
+  }, [profilePicture]);
+
+  const formatDateTime = (dateTimeStr: string) => {
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
 
   if (loading) {
-    return "Loading..."
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B3D]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
   }
 
   return (
     <div className="bg-white min-h-screen">
       <main className="p-4">
         <h2 className="text-2xl font-bold mb-4">Profile</h2>
-        <ProfileCard 
-          name={profile?.name || "Loading..."} 
-          email={profile?.user.email || "Loading..."} 
-          username={`@${profile?.user.username}`} 
-          imgUrl="/johndoe.png" 
-        />
+        {profile && profile.user ? (
+          <ProfileCard 
+            name={profile.name} 
+            email={profile.user.email} 
+            username={`@${profile.user.username}`} 
+            imgUrl={profilePicture} 
+          />
+        ) : (
+          <div className="bg-orange-50 rounded-lg p-4 mb-6">
+            <p>Loading profile information...</p>
+          </div>
+        )}
         
         <h2 className="text-3xl font-bold mb-4">My Bookings</h2>
-        <BookingCard 
-          name="Kimmy" 
-          age="2Y 1M" 
-          date="31/10/2024 14:00"
-          location="Buona Vista"
-          imgUrl="/kimmydog.png" 
-        />
+        <div className="flex overflow-x-auto pb-4 space-x-4">
+          {bookings.length > 0 ? (
+            bookings.map((booking, index) => (
+              <BookingCard 
+                key={index}
+                name={booking.service}
+                petName={booking.pet_name}
+                date={formatDateTime(booking.start)}
+                location={booking.location}
+                imgUrl="/kimmydog.png"
+              />
+            ))
+          ) : (
+            <p className="text-gray-500">No upcoming bookings</p>
+          )}
+        </div>
 
         <h2 className="text-3xl font-bold mb-4">My Services</h2>
         <div className="relative">
           <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
-            {profile?.service.map((service) => (
+            {profile?.service?.map((service) => (
               <ServiceCard 
                 key={service.service}
                 serviceName={service.service}

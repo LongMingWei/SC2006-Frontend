@@ -11,6 +11,7 @@ interface Conversation {
   username: string;
   email: string;
   created_at: string;
+  profilePicture: string;
 }
 
 export default function Messages() {
@@ -35,7 +36,37 @@ export default function Messages() {
           }
         });
 
-        setConversations(response.data);
+        // Fetch profile picture for each conversation
+        const conversationsWithPicture = await Promise.all(
+          response.data.map(async (conversation) => {
+            const userId = conversation.id;
+            let profilePicture = '/johndoe.png'; // Default profile picture
+
+            try {
+              const pictureResponse = await axios.get(
+                `http://localhost:8000/users/${userId}/profile-picture`,
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  responseType: 'blob'
+                }
+              );
+              const imageUrl = URL.createObjectURL(pictureResponse.data);
+              profilePicture = imageUrl;
+            } catch (err) {
+              console.log(`Error fetching profile picture for user ${userId}`);
+            }
+
+            return {
+              ...conversation,
+              profilePicture
+            };
+          })
+        );
+
+        setConversations(conversationsWithPicture);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching conversations:', err);
@@ -75,11 +106,11 @@ export default function Messages() {
               <div className="border-t-4 border-gray-50"></div>
               <div className="flex items-center justify-center p-4">
                 <Image
-                  src="/johndoe.png"
+                  src={conversation.profilePicture}
                   alt={conversation.username}
                   width={50}
                   height={50}
-                  className="rounded-full"
+                  className="rounded-full object-cover w-[60px] h-[60px]"
                 />
                 <div className="ml-4 flex-grow">
                   <div className="flex justify-between items-center">
