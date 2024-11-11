@@ -8,20 +8,6 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  created_at: string; 
-}
-
-interface Service {
-  id: number;
-  service: string;
-  rate: number;
-  availability: string[];
-  location: string[];
-}
 
 interface Caretaker {
   name: string;
@@ -29,7 +15,7 @@ interface Caretaker {
   gender: 'male' | 'female' | 'other';
   work_exp: number;
   service: Service[]; 
-  user: User;
+  user_id: number;
 }
 
 // Type for days of the week
@@ -59,7 +45,7 @@ export default function UpcomingEvents() {
       }
 
       try {
-        const response = await axios.get<Caretaker[]>('http://localhost:8000/caretaker/', {
+        const response = await axios.get<Caretaker[]>('http://localhost:8000/caretaker', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -100,7 +86,7 @@ export default function UpcomingEvents() {
       </div>
     <div className="space-y-8">
         {caretakers.map(caretaker => (
-        <Link key={caretaker.user.id} href={`search/caretaker/${caretaker.user.id}`}>
+        <Link key={caretaker.user_id} href={`search/caretaker/${caretaker.user_id}`}>
             <div className="w-full cursor-pointer">
             <div className="border-t-4 border-orange-500"></div>
             <div className="flex items-center justify-center p-4">
@@ -113,9 +99,9 @@ export default function UpcomingEvents() {
                 />
                 <div className="ml-4">
                 <h2 className="poppins text-xl font-semibold">{caretaker.name}</h2>
-                <p className="poppins text-gray-600">{`Gender: ${caretaker.gender}`}</p>
-                <p className="poppins text-gray-600">{`DOB: ${caretaker.dob}`}</p>               
+                <p className="poppins text-gray-600">{`Gender: ${caretaker.gender}`}</p>             
                 <p className="poppins text-gray-600">{`Experience: ${caretaker.work_exp}`}</p>
+                <p className="poppins text-gray-600">{`Services: ${caretaker?.service?.map(s => s.service).join(', ')}`}</p>
                 </div>
             </div>
             <div className="border-t-4 border-orange-500"></div>

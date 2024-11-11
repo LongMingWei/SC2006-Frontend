@@ -72,7 +72,7 @@ export default function Messages() {
         console.error('Error fetching conversations:', err);
         if (axios.isAxiosError(err) && err.response?.status === 401) {
           sessionStorage.clear();
-          router.push('/login');
+          router.push('/signout/login');
         }
         setError('Failed to load conversations');
         setLoading(false);
