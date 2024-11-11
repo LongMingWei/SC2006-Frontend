@@ -209,7 +209,7 @@ const ProfilePage: React.FC = () => {
           imgUrl={profilePicture}
         />
         
-        <h2 className="text-2xl font-bold mb-4">My Pets</h2>
+        <h2 className="jua text-2xl font-bold mb-4">My Pets</h2>
         <div className="relative">
           <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
           {pets.map((pet) => (
@@ -228,7 +228,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
         
-        <h2 className="text-2xl font-bold mb-4">General</h2>
+        <h2 className="jua text-2xl font-bold mb-4">General</h2>
         <div className="bg-white">
           <GeneralItem text="Logout" link="/signout/login" />
           <GeneralItem text="Booking History" link="/booking-history" />
