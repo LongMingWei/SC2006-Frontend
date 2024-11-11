@@ -1,27 +1,50 @@
 "use client"
 
+import { useEffect, useState } from 'react';
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
+
+interface Event {
+  id: string;
+  name: {text: string, html: string};
+  description: {text: string, html: string};
+  url: string;
+  start: {local: string};
+  end: {local: string};
+  logo: {original: {url: string}};
+}
 
 const EventCard: React.FC<{
   title: string;
   imageUrl: string;
-}> = ({ title, imageUrl }) => (
-  <div className="relative w-full h-48">
-    <Image
-      src={imageUrl}
-      alt={title}
-      width={120}
-      height={120}
-      className="rounded-lg w-full h-full object-contain"
-      style={{ objectPosition: 'center' }} 
-    />
-    <div className="poppins absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
-      {title}
+  url: string;
+  start: string;
+  end: string;
+}> = ({ title, imageUrl, url, start, end }) => {
+  const formattedStart = format(new Date(start), 'yyyy-MM-dd HH:mm');
+  const formattedEnd = format(new Date(end), 'yyyy-MM-dd HH:mm');
+
+  return(<Link href={url}>
+    <div className="relative w-full h-48">
+      <Image
+        src={imageUrl}
+        alt={title}
+        width={120}
+        height={120}
+        className="rounded-lg w-full h-full object-contain"
+        style={{ objectPosition: 'center' }} 
+      />
+      <div className="poppins absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
+        {title}<br />
+        {formattedStart} - {formattedEnd}
+      </div>
     </div>
-  </div>
-);
+    </Link>);
+};
 const ServiceCard: React.FC<{
   title: string;
   imageUrl: string;
@@ -42,12 +65,65 @@ const ServiceCard: React.FC<{
   </Link>
 );
 
-const HomePage: React.FC = () => {
-  const events = [
-    { id: 1, title: 'Event 1', imageUrl: '/dog.png' },
-    { id: 2, title: 'Event 2', imageUrl: '/dog.png' },
-    { id: 3, title: 'Event 3', imageUrl: '/dog.png' },
-  ];
+export default function HomePage() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const token = sessionStorage.getItem('access_token');
+      
+      if (!token) {
+        router.push('/signout/login');
+        return;
+      }
+
+      try {
+        const response = await axios.get<Event[]>('http://localhost:8000/eventbrite/events', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setEvents(response.data.events);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching eventbrite:', err);
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          sessionStorage.clear();
+          router.push('/signout/login');
+        }
+        setError('Failed to load eventbrite');
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [router]);
+
+  /* useEffect(() => {
+    console.log("HomePage mounted");
+    return () => console.log("HomePage unmounted");
+  }, []);
+
+  useEffect(() => {
+    console.log('Events state updated:', events);
+  }, [events]); */
+
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B3D]"></div>
+        </div>
+      );
+    }
+  
+    if (error) {
+      return <div className="text-red-500 text-center p-4">{error}</div>;
+    }
+
+    console.log(events);
 
   return (
     <div className="bg-white min-h-screen pb-20">
@@ -57,11 +133,14 @@ const HomePage: React.FC = () => {
             Upcoming Events
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {events.map(event => (
+            {events.length > 0 && events.map(event => (
               <EventCard 
                 key={event.id}
-                title={event.title}
-                imageUrl={event.imageUrl}
+                title={event.name.text}
+                imageUrl={event.logo.original.url}
+                url={event.url}
+                start={event.start.local}
+                end={event.end.local}
               />
             ))}
           </div>
@@ -88,5 +167,3 @@ const HomePage: React.FC = () => {
     </div>
   );
 };
-
-export default HomePage;

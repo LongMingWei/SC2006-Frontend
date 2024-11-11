@@ -132,6 +132,7 @@ const AddServiceButton: React.FC = () => (
 const GeneralItem: React.FC<{
   text: string;
   link: string;
+  onClick?: () => void;
   isDelete?: boolean;
 }> = ({ text, link, isDelete = false }) => (
   <Link href={link} className={`py-4 flex justify-between items-center border-b ${isDelete ? 'text-red-500' : ''}`}>
@@ -320,7 +321,11 @@ const ProfilePage: React.FC = () => {
         
         <h2 className="jua text-2xl font-bold mb-4">General</h2>
         <div className="bg-white">
-          <GeneralItem text="Logout" link="/signout/login" />
+            <GeneralItem 
+            text="Logout" 
+            link="/signout/login" 
+            onClick={() => sessionStorage.clear()}
+            />
           <GeneralItem text="Booking History" link="/booking-history" />
           <GeneralItem text="Payment History" link="/payment-history" />
           <GeneralItem text="Change Password" link="/change-password" />
