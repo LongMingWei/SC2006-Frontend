@@ -93,6 +93,7 @@ const CaretakerProfile = () => {
                 <div className="mb-4">
                     <label className="block text-lg font-bold mb-2">Date of Birth*</label>
                     <input
+                        type="date"
                         className="w-full p-2 border border-orange-500 rounded"
                         placeholder="YYYY-MM-DD"
                         value={formData.dob}
@@ -119,8 +120,11 @@ const CaretakerProfile = () => {
                 <div className="mb-4">
                     <label className="block text-lg font-bold mb-2">Work Experience*</label>
                     <input
+                        type="number"
+                        min = "0"
+                        step = "1"
                         className="w-full p-2 border border-orange-500 rounded"
-                        placeholder="6 months, 1 year, etc."
+                        placeholder="Years of experience"
                         value={formData.experience}
                         onChange={(e) => handleInputChange('experience', e.target.value)}
                     />

@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 interface ProfileFormData {
   name: string;
   dob: string;
-  gender: 'male' | 'female' | 'other';
+  gender: 'male' | 'female' | 'prefer not to say';
   work_exp: number;
 }
 
@@ -18,7 +18,7 @@ interface ProfileFormData {
 interface ProfileResponse {
   name: string;
   dob: string;
-  gender: 'male' | 'female' | 'other';
+  gender: 'male' | 'female' | 'prefer not to say';
   work_exp: number;
   user: {
     id: number;
@@ -260,9 +260,9 @@ const EditProfile: React.FC = () => {
             className="w-full p-3 border border-[#FF6B3D] rounded-lg"
             required
           >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="male">male</option>
+            <option value="female">female</option>
+            <option value="other">prefer not to say</option>
           </select>
         </div>
 

@@ -180,6 +180,7 @@ const CaretakerProfileNew = () => {
                 <div className="mb-4">
                     <label className="block text-lg font-bold mb-2">Date of Birth*</label>
                     <input
+                        type="date"
                         className="w-full p-2 border border-orange-500 rounded"
                         placeholder="YYYY-MM-DD"
                         value={formData.dob}
