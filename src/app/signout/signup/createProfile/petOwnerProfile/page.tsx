@@ -155,7 +155,7 @@ const CaretakerProfileNew = () => {
         <div className="flex flex-col items-center p-5 bg-white min-h-screen">
             {/* Back Arrow */}
             <div className="absolute top-6 left-4">
-                <Link href="/homepage">
+                <Link href="/profile-petOwner">
                     <Image src="/back_arrow.png" alt="Back to homepage" width={32} height={32} />
                 </Link>
             </div>

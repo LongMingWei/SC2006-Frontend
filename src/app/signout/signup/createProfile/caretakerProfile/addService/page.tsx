@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 // Enum-like objects for `Gender`, `Location`, and `Service`
 const Availability = {
@@ -188,6 +189,12 @@ const AddServiceProfile = () => {
     return (
         <div className="flex flex-col items-center p-5 bg-white min-h-screen">
             <div className="w-full max-w-md">
+                {/* Back Arrow */}
+                <div className="absolute top-6 left-4">
+                    <Link href="/profile-caretaker">
+                        <Image src="/back_arrow.png" alt="Back to homepage" width={32} height={32} />
+                    </Link>
+                </div>
                 <h2 className="jua text-3xl font-bold text-center mt-4">Create a Service</h2>
                 <h3 className="jua text-2xl font-bold text-center text-orange-500 mt-2">Services</h3>
 

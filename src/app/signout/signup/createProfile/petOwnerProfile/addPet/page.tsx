@@ -93,7 +93,7 @@ const AddServiceProfile = () => {
             <div className="w-full max-w-md">
                 {/* Back Arrow */}
                 <div className="absolute top-6 left-4">
-                    <Link href="/signout/signup/createProfile/petOwnerProfile">
+                    <Link href="/profile-petOwner">
                         <Image src="/back_arrow.png" alt="Back to homepage" width={32} height={32} />
                     </Link>
                 </div>

@@ -17,21 +17,51 @@ const Register = () => {
     setIsModalVisible(!isModalVisible);
   };
   const handleRegister = async () => {
-    // Basic validation
-    // Basic validation
+    // Basic validation for required fields and terms acceptance
     if (!username || !email || !password || !confirmPassword || !termsAccepted) {
       alert('Please fill in all fields and accept the terms and conditions');
       return;
     }
   
-    if(password.length<6){
-      alert('Password must be at least 6 characters');
-      return;
+    // Password validation rules
+    const passwordRequirements = [
+      {
+        regex: /.{10,20}/,
+        message: 'Password must be between 10 and 20 characters',
+      },
+      {
+        regex: /[!@#$%^&*(),.?":{}|<>]/,
+        message: 'Password must contain at least one special character',
+      },
+      {
+        regex: /[A-Z]/,
+        message: 'Password must include at least one uppercase letter',
+      },
+      {
+        regex: /[a-z]/,
+        message: 'Password must include at least one lowercase letter',
+      },
+      {
+        regex: /[0-9]/,
+        message: 'Password must include at least one number',
+      },
+    ];
+  
+    // Check each password requirement
+    for (let { regex, message } of passwordRequirements) {
+      if (!regex.test(password)) {
+        alert(message);
+        return;
+      }
     }
+  
+    // Check if passwords match
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
+  
+  
   
   
     try {
@@ -108,7 +138,7 @@ const Register = () => {
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           type="password"
-          placeholder="Enter your password (at least 6 characters)"
+          placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
