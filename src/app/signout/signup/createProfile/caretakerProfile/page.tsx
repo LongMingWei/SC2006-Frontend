@@ -9,7 +9,7 @@ const Gender = {
     female: "female",
     male: "male",
     prefer_not_to_say: "prefer not to say"
-}
+};
 
 const CaretakerProfile = () => {
     const [formData, setFormData] = useState({
@@ -20,6 +20,7 @@ const CaretakerProfile = () => {
     });
     const router = useRouter();
     const [isFormValid, setIsFormValid] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [nameError, setNameError] = useState('');
 
     useEffect(() => {
@@ -42,6 +43,26 @@ const CaretakerProfile = () => {
                 setNameError('');
             }
         }
+        if (key === 'experience') {
+            // Validate work experience (it should not be greater than the age)
+            const age = getAge(formData.dob);
+            if (parseFloat(value) > age) {
+                setErrorMessage('Work experience cannot be greater than your age');
+            } else {
+                setErrorMessage('');
+            }
+        }
+    };
+
+    const getAge = (dob: string) => {
+        const today = new Date();
+        const birthDate = new Date(dob);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const month = today.getMonth();
+        if (month < birthDate.getMonth() || (month === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
     };
 
     const today = new Date();
@@ -49,7 +70,7 @@ const CaretakerProfile = () => {
     const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
 
     const handleSubmit = async () => {
-        if (isFormValid && !nameError) {
+        if (isFormValid && !errorMessage && !nameError) {
             try {
                 const accessToken = sessionStorage.getItem('access_token');
                 const userId = sessionStorage.getItem('user_id');
@@ -78,7 +99,7 @@ const CaretakerProfile = () => {
                 alert((error as Error).message);
             }
         } else {
-            alert('Please fill out all required fields.');
+            alert('Please fill out all required fields and ensure work experience is valid.');
         }
     };
 
@@ -144,12 +165,14 @@ const CaretakerProfile = () => {
                         value={formData.experience}
                         onChange={(e) => handleInputChange('experience', e.target.value)}
                     />
+                    {errorMessage && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
                 </div>
             </div>
 
             <button
                 className="poppins bg-orange-500 text-white py-2 px-4 rounded mt-4"
                 onClick={handleSubmit}
+                disabled={!!errorMessage || !isFormValid}
             >
                 Save
             </button>
@@ -163,6 +186,7 @@ const CaretakerProfile = () => {
                 <p className="poppins text-lg text-gray-500 mt-2">Start adding your services!</p>
             </div>
         </div>
+
     );
 };
 

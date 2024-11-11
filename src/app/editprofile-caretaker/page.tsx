@@ -307,6 +307,13 @@ const EditProfile: React.FC = () => {
             value={formData.work_exp}
             onChange={(e) => handleInputChange('work_exp', e.target.value)}
             min="0"
+            step="1"
+            max={
+              formData.dob
+                ? new Date().getFullYear() - new Date(formData.dob).getFullYear() -
+                  (new Date() < new Date(new Date(formData.dob).setFullYear(new Date().getFullYear())) ? 1 : 0)
+                : ''
+            }
           />
           {workExpError && <p className="text-red-500 text-sm">{workExpError}</p>}
         </div>
