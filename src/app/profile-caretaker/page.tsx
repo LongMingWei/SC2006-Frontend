@@ -29,6 +29,7 @@ type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'S
 
 // Type for service details
 interface Service {
+  service_id: number;
   service: string;
   service_rate: number;
   service_availability: DayOfWeek[];
@@ -83,22 +84,31 @@ const BookingCard: React.FC<{
 );
 
 const ServiceCard: React.FC<{
-  serviceName: string;
-  rate: string;
-  availability: string;
+  service: Service;
   imgUrl: string;
-}> = ({ serviceName, rate, availability, imgUrl }) => (
-  <div className="flex-shrink-0 bg-orange-50 rounded-3xl p-6 shadow-md w-[280px] h-[160px]">
-    <div className="flex items-start">
-      <Image src={imgUrl} alt={serviceName} width={60} height={60} className="rounded-lg mr-4" />
+}> = ({ service, imgUrl }) => {
+  const handleEditClick = () => {
+    console.log('Setting service_id:', service.service_id); // Debug log
+    sessionStorage.setItem('service_id', service.service_id.toString());
+  };
+
+  return (
+    <div className="poppins bg-orange-50 rounded-lg p-4 w-[280px] flex items-center">
+      <Image src={imgUrl} alt={service.service} width={60} height={60} className="rounded-lg mr-4" />
       <div>
-        <h3 className="font-bold text-xl mb-2">{serviceName}</h3>
-        <p className="text-gray-600 mb-1">{rate}</p>
-        <p className="text-gray-600 text-sm">{availability}</p>
+        <h3 className="font-bold">{service.service}</h3>
+        <p className="text-sm text-gray-600">${service.service_rate}</p>
+        <Link 
+          href="/editprofile-service" 
+          className="text-orange-400 text-sm"
+          onClick={handleEditClick}
+        >
+          Edit service profile &gt;
+        </Link>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AddServiceButton: React.FC = () => (
   <div className="flex-shrink-0 flex items-center h-[160px]">
@@ -293,10 +303,8 @@ const ProfilePage: React.FC = () => {
           <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
             {profile?.service?.map((service) => (
               <ServiceCard 
-                key={service.service}
-                serviceName={service.service}
-                rate={`$${service.service_rate}/hr`} 
-                availability={service.service_availability.join(', ')}
+                key={service.service_id}
+                service={service}  // Pass the entire service object
                 imgUrl="/kimmydog.png" 
               />
             ))}
@@ -304,6 +312,7 @@ const ProfilePage: React.FC = () => {
             <AddServiceButton/>
           </div>
         </div>
+
         
         <h2 className="text-2xl font-bold mb-4">General</h2>
         <div className="bg-white">
