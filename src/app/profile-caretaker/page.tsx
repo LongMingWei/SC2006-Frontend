@@ -154,7 +154,7 @@ const ProfilePage: React.FC = () => {
       const userId = sessionStorage.getItem('user_id');
 
       if (!token || !userId) {
-        router.push('/login');
+        router.push('/signout/login');
         return;
       }
 
@@ -206,7 +206,7 @@ const ProfilePage: React.FC = () => {
         setError(err.response?.data?.detail || 'Failed to load profile');
         if (err.response?.status === 401) {
           sessionStorage.clear();
-          router.push('/login');
+          router.push('/signout/login');
         }
       } finally {
         setLoading(false);
@@ -307,6 +307,7 @@ const ProfilePage: React.FC = () => {
         
         <h2 className="text-2xl font-bold mb-4">General</h2>
         <div className="bg-white">
+          <GeneralItem text="Logout" link="/signout/login" />
           <GeneralItem text="Booking History" link="/booking-history" />
           <GeneralItem text="Payment History" link="/payment-history" />
           <GeneralItem text="Change Password" link="/change-password" />

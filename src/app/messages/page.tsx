@@ -25,7 +25,7 @@ export default function Messages() {
       const token = sessionStorage.getItem('access_token');
       
       if (!token) {
-        router.push('/login');
+        router.push('/signout/login');
         return;
       }
 
