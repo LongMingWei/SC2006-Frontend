@@ -2,28 +2,50 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-// import axios from 'axios';
-// import axios from 'axios';
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  // Form state variables with explicit types
+  const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
+  // Password validation state
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    specialChar: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+  });
+
+  // Toggle modal visibility
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
+
+  // Password validation function
+  const validatePassword = (value: string) => {
+    setPasswordValidation({
+      length: /.{10,20}/.test(value), // Check length
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value), // Check for special char
+      uppercase: /[A-Z]/.test(value), // Check for uppercase letter
+      lowercase: /[a-z]/.test(value), // Check for lowercase letter
+      number: /[0-9]/.test(value), // Check for number
+    });
+  };
+
+  // Register handler
   const handleRegister = async () => {
-    // Basic validation for required fields and terms acceptance
+    // Check if all fields are filled
     if (!username || !email || !password || !confirmPassword || !termsAccepted) {
       alert('Please fill in all fields and accept the terms and conditions');
       return;
     }
-  
-    // Password validation rules
+
+    // Check password validity
     const passwordRequirements = [
       {
         regex: /.{10,20}/,
@@ -46,69 +68,59 @@ const Register = () => {
         message: 'Password must include at least one number',
       },
     ];
-  
-    // Check each password requirement
+
+    // Validate password against requirements
     for (let { regex, message } of passwordRequirements) {
       if (!regex.test(password)) {
         alert(message);
         return;
       }
     }
-  
+
     // Check if passwords match
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-  
-  
-  
-  
+
+    // Attempt to register the user
     try {
-      // Send the POST request to the FastAPI backend
       const response = await fetch('http://localhost:8000/users', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',  // Use 'application/json' for JSON payload
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,  // username to register
-          email,     // email to register
-          password  // password to register
+          username,
+          email,
+          password,
         }),
       });
-  
-  
+
+      // Handle failed response
       if (!response.ok) {
-        const errorData = await response.json();  // Get the error response
+        const errorData = await response.json();
         throw new Error(errorData.detail || 'Failed to register. Please try again.');
       }
-  
-  
+
+      // Handle successful registration
       const data = await response.json();
       console.log('User registered:', data);
-      alert('Successfully registered!')
-  
-      // Optionally, redirect after successful registration
-      window.location.href = '/signout/login'; // Redirect to the next page
+      alert('Successfully registered!');
+      window.location.href = '/signout/login'; // Redirect after registration
     } catch (error) {
       console.error('Error registering user:', error);
       alert('Failed to register. Please try again.');
     }
   };
-  
-  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-white">
-      {/* App name */}
       <h1 className="jua text-4xl text-orange-500">PetBuddy</h1>
-
-      {/* Title */}
       <h2 className="jua text-4xl text-black-800 mt-4">Registration</h2>
       <p className="poppins text-xs text-black-600 mt-2">Enter your information</p>
 
-      {/* Username */}
+      {/* Username input */}
       <div className="poppins w-full max-w-xs mt-6">
         <label className="block text-gray-700 text-sm font-bold mb-2">Username*</label>
         <input
@@ -120,7 +132,7 @@ const Register = () => {
         />
       </div>
 
-      {/* Email */}
+      {/* Email input */}
       <div className="poppins w-full max-w-xs mt-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">Email*</label>
         <input
@@ -132,7 +144,7 @@ const Register = () => {
         />
       </div>
 
-      {/* Password */}
+      {/* Password input */}
       <div className="poppins w-full max-w-xs mt-6">
         <label className="block text-gray-700 text-sm font-bold mb-2">Password*</label>
         <input
@@ -140,11 +152,34 @@ const Register = () => {
           type="password"
           placeholder="Enter your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            validatePassword(e.target.value);
+          }}
         />
+        <div className="mt-2 text-sm">
+          {/* Password validation feedback */}
+          <ul className="list-inside">
+            <li className={`text-sm ${passwordValidation.length ? 'text-green-500' : 'text-red-500'}`}>
+              Password must be between 10 and 20 characters
+            </li>
+            <li className={`text-sm ${passwordValidation.specialChar ? 'text-green-500' : 'text-red-500'}`}>
+              Password must contain at least one special character
+            </li>
+            <li className={`text-sm ${passwordValidation.uppercase ? 'text-green-500' : 'text-red-500'}`}>
+              Password must include at least one uppercase letter
+            </li>
+            <li className={`text-sm ${passwordValidation.lowercase ? 'text-green-500' : 'text-red-500'}`}>
+              Password must include at least one lowercase letter
+            </li>
+            <li className={`text-sm ${passwordValidation.number ? 'text-green-500' : 'text-red-500'}`}>
+              Password must include at least one number
+            </li>
+          </ul>
+        </div>
       </div>
 
-      {/* Confirm Password */}
+      {/* Confirm Password input */}
       <div className="poppins w-full max-w-xs mt-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password*</label>
         <input
@@ -156,7 +191,7 @@ const Register = () => {
         />
       </div>
 
-      {/* Terms and Conditions Checkbox */}
+      {/* Terms and conditions checkbox */}
       <div className="poppins flex items-center mt-4">
         <input
           type="checkbox"
@@ -172,19 +207,15 @@ const Register = () => {
         </p>
       </div>
 
-
-
-
-
-      {/* Register Button */}
+      {/* Register button */}
       <button
         className="poppins bg-orange-500 text-white py-2 px-4 rounded mt-6"
-        onClick={handleRegister}  // Call the handleRegister function here
+        onClick={handleRegister}
       >
         Register
       </button>
 
-      {/* Modal */}
+      {/* Terms and Conditions Modal */}
       {isModalVisible && (
         <div className="poppins fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-5 w-11/12 max-w-lg">
@@ -200,7 +231,7 @@ const Register = () => {
         </div>
       )}
 
-      {/* Link to Login */}
+      {/* Login link */}
       <p className="poppins mt-4">
         Already have an account?{' '}
         <Link href="/signout/login" className="text-blue-500 underline">
