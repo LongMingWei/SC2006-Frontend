@@ -133,7 +133,7 @@ export default function HomePage() {
             Upcoming Events
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {events.length > 0 && events.map(event => (
+            {events.length > 0 && events.map((event, index) => index < 3 && (
               <EventCard 
                 key={event.id}
                 title={event.name.text}
