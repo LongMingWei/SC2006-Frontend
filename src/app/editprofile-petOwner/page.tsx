@@ -47,6 +47,7 @@ const EditProfile: React.FC = () => {
       setProfilePicture('/johndoe.png');
     }
   };
+
   const router = useRouter();
   const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
@@ -58,6 +59,8 @@ const EditProfile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [username, setUsername] = useState('');
+  const [formErrors, setFormErrors] = useState<{ name?: string }>({});
+  const [isFormValid, setIsFormValid] = useState(false);  // Track form validity
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -83,9 +86,9 @@ const EditProfile: React.FC = () => {
           config
         );
         const profileData = response.data;
-        
+
         const formattedDate = new Date(profileData.dob).toISOString().split('T')[0];
-        
+
         setFormData({
           name: profileData.name,
           dob: formattedDate,
@@ -114,7 +117,23 @@ const EditProfile: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+
+    if (name === 'name') {
+      // Validate name length
+      if (value.length < 3 || value.length > 30) {
+        setFormErrors((prev) => ({
+          ...prev,
+          name: 'Name must be between 3 and 30 characters'
+        }));
+      } else {
+        setFormErrors((prev) => ({
+          ...prev,
+          name: ''
+        }));
+      }
+    }
+
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -123,13 +142,17 @@ const EditProfile: React.FC = () => {
   const today = new Date();
   today.setFullYear(today.getFullYear() - 16); // Subtract 16 years
   const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
-  console.log(maxDate)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    
+
+    // Check if there are any form errors before submitting
+    if (formErrors.name) {
+      return;
+    }
+
     const token = sessionStorage.getItem('access_token');
     const userId = sessionStorage.getItem('user_id');
 
@@ -144,7 +167,7 @@ const EditProfile: React.FC = () => {
         'Content-Type': 'application/json'
       }
     };
-    
+
     try {
       const formattedData = {
         name: formData.name,
@@ -152,8 +175,6 @@ const EditProfile: React.FC = () => {
         gender: formData.gender,
         location: formData.location
       };
-
-      console.log('Sending data:', formattedData);
 
       const response = await axios.put(
         `http://localhost:8000/petowner/${userId}`,
@@ -181,6 +202,12 @@ const EditProfile: React.FC = () => {
       }
     }
   };
+
+  // Check form validity
+  useEffect(() => {
+    const isValid = !formErrors.name && formData.name.length >= 3 && formData.name.length <= 30;
+    setIsFormValid(isValid);
+  }, [formData, formErrors]);
 
   if (loading) {
     return (
@@ -233,6 +260,7 @@ const EditProfile: React.FC = () => {
             className="w-full p-3 border border-[#FF6B3D] rounded-lg"
             required
           />
+          {formErrors.name && <p className="text-red-500 text-sm">{formErrors.name}</p>}
         </div>
 
         <div>
@@ -263,9 +291,9 @@ const EditProfile: React.FC = () => {
             className="w-full p-3 border border-[#FF6B3D] rounded-lg"
             required
           >
-            <option value="male">male</option>
-            <option value="female">female</option>
-            <option value="prefer not to say">prefer not to say</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="prefer not to say">Prefer not to say</option>
           </select>
         </div>
 
@@ -284,12 +312,14 @@ const EditProfile: React.FC = () => {
           />
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-[#FF6B3D] text-white py-3 rounded-lg font-semibold hover:bg-[#e85d2f] transition-colors"
-        >
-          Save Changes
-        </button>
+        <div className="flex justify-between items-center">
+          <button
+            type="submit"
+            className={`w-full p-3 rounded bg-[#FF6B3D] text-white font-semibold ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+            Save Changes
+          </button>
+        </div>
       </form>
     </main>
   );

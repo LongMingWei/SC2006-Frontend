@@ -30,7 +30,24 @@ interface ProfileResponse {
 
 const EditProfile: React.FC = () => {
   const [profilePicture, setProfilePicture] = useState<string>('/johndoe.png');
+  const [formData, setFormData] = useState<ProfileFormData>({
+    name: '',
+    dob: '',
+    gender: 'male',
+    work_exp: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [username, setUsername] = useState('');
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [dobError, setDobError] = useState<string | null>(null);
+  const [workExpError, setWorkExpError] = useState<string | null>(null);
+  const [formValid, setFormValid] = useState(false);  // To track form validity
 
+  const router = useRouter();
+
+  // Fetch profile picture
   const fetchProfilePicture = async (userId: string) => {
     try {
       const response = await axios.get(
@@ -47,25 +64,12 @@ const EditProfile: React.FC = () => {
       setProfilePicture('/johndoe.png');
     }
   };
-  const router = useRouter();
-  const [formData, setFormData] = useState<ProfileFormData>({
-    name: '',
-    dob: '',
-    gender: 'male',
-    work_exp: 0
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [username, setUsername] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // Get token and userId from sessionStorage
       const token = sessionStorage.getItem('access_token');
       const userId = sessionStorage.getItem('user_id');
 
-      // If no token or userId, redirect to login
       if (!token || !userId) {
         router.push('/login');
         return;
@@ -85,10 +89,8 @@ const EditProfile: React.FC = () => {
           config
         );
         const profileData = response.data;
-        
-        // Format the date from the backend to YYYY-MM-DD
         const formattedDate = new Date(profileData.dob).toISOString().split('T')[0];
-        
+
         setFormData({
           name: profileData.name,
           dob: formattedDate,
@@ -97,7 +99,6 @@ const EditProfile: React.FC = () => {
         });
 
         setUsername(profileData.user.username);
-        // Fetch profile picture
         await fetchProfilePicture(userId);
       } catch (err: any) {
         console.error('Error fetching profile:', err);
@@ -115,29 +116,63 @@ const EditProfile: React.FC = () => {
     fetchProfile();
   }, [router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleInputChange = (key: string, value: string) => {
+    setFormData({ ...formData, [key]: value });
+
+    let isFormValid = true;
+
+    // Validate name
+    if (key === 'name') {
+      if (value.trim().length < 3 || value.trim().length > 30) {
+        setNameError('Name must be between 3 and 30 characters.');
+        isFormValid = false;
+      } else {
+        setNameError('');
+      }
+    }
+
+    // Validate dob
+    if (key === 'dob') {
+      if (!value) {
+        setDobError('Date of birth is required.');
+        isFormValid = false;
+      } else {
+        setDobError('');
+      }
+    }
+
+    // Validate work experience
+    if (key === 'work_exp') {
+      const workExp = Number(value);
+      if (workExp < 0) {
+        setWorkExpError('Work experience cannot be negative.');
+        isFormValid = false;
+      } else {
+        setWorkExpError('');
+      }
+    }
+
+    setFormValid(isFormValid); // Update form validity
   };
 
   const today = new Date();
   today.setFullYear(today.getFullYear() - 16); // Subtract 16 years
   const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
-  console.log(maxDate)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    
-    // Get token and userId from sessionStorage
+
+    // Validate form before submission
+    if (!formValid) {
+      setError('Please fix the errors before submitting.');
+      return;
+    }
+
     const token = sessionStorage.getItem('access_token');
     const userId = sessionStorage.getItem('user_id');
 
-    // If no token or userId, redirect to login
     if (!token || !userId) {
       router.push('/login');
       return;
@@ -149,7 +184,7 @@ const EditProfile: React.FC = () => {
         'Content-Type': 'application/json'
       }
     };
-    
+
     try {
       const formattedData = {
         ...formData,
@@ -183,6 +218,16 @@ const EditProfile: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    // Validate form after fetching data
+    const isFormValid =
+      formData.name.trim().length >= 3 && formData.name.trim().length <= 30 &&
+      formData.dob !== '' &&
+      formData.work_exp >= 0;
+
+    setFormValid(isFormValid);
+  }, [formData]);
 
   if (loading) {
     return (
@@ -222,20 +267,17 @@ const EditProfile: React.FC = () => {
         </Link>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name" className="block text-gray-700 mb-2">
-            Name<span className="text-red-500">*</span>
-          </label>
+      <form className="space-y-6" onSubmit={handleChange}>
+        {/* Name */}
+        <div className="mb-4">
+          <label className="block text-lg font-bold mb-2">Name<span className="text-red-500">*</span></label>
           <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-3 border border-[#FF6B3D] rounded-lg"
-            required
+              className="w-full p-2 border border-orange-500 rounded"
+              placeholder="Your name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
           />
+          {nameError && <p className="text-red-500 text-sm">{nameError}</p>}
         </div>
 
         <div>
@@ -246,52 +288,34 @@ const EditProfile: React.FC = () => {
             type="date"
             id="dob"
             name="dob"
-            max = {maxDate}
+            className="w-full p-2 border border-orange-500 rounded"
             value={formData.dob}
-            onChange={handleChange}
-            className="w-full p-3 border border-[#FF6B3D] rounded-lg"
-            required
+            onChange={(e) => handleInputChange('dob', e.target.value)}
+            max={maxDate} // Set maximum date to 16 years ago
           />
+          {dobError && <p className="text-red-500 text-sm">{dobError}</p>}
         </div>
 
+        {/* Work Experience */}
         <div>
-          <label htmlFor="gender" className="block text-gray-700 mb-2">
-            Gender<span className="text-red-500">*</span>
-          </label>
-          <select
-            id="gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className="w-full p-3 border border-[#FF6B3D] rounded-lg"
-            required
-          >
-            <option value="male">male</option>
-            <option value="female">female</option>
-            <option value="other">prefer not to say</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="work_exp" className="block text-gray-700 mb-2">
-            Work Experience (years)<span className="text-red-500">*</span>
-          </label>
+          <label htmlFor="work_exp" className="block text-gray-700 mb-2">Work Experience (years)<span className="text-red-500">*</span></label>
           <input
             type="number"
             id="work_exp"
             name="work_exp"
+            className="w-full p-2 border border-orange-500 rounded"
             value={formData.work_exp}
-            onChange={handleChange}
-            className="w-full p-3 border border-[#FF6B3D] rounded-lg"
-            required
+            onChange={(e) => handleInputChange('work_exp', e.target.value)}
             min="0"
-            step="1"
           />
+          {workExpError && <p className="text-red-500 text-sm">{workExpError}</p>}
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-[#FF6B3D] text-white py-3 rounded-lg font-semibold hover:bg-[#e85d2f] transition-colors"
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={!formValid}
+          className={`w-full p-3 rounded bg-[#FF6B3D] text-white font-semibold ${!formValid ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           Save Changes
         </button>

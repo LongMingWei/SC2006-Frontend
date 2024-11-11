@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-
 const Gender = {
     female: "female",
     male: "male",
@@ -101,36 +100,62 @@ const CaretakerProfileNew = () => {
     });
 
     const [isFormValid, setIsFormValid] = useState(false);
-    
+    const [nameError, setNameError] = useState('');
+    const [genderError, setGenderError] = useState('');
+    const [locationError, setLocationError] = useState('');
+
     useEffect(() => {
         const requiredFieldsFilled =
             formData.name.trim() !== '' &&
-            formData.dob.trim() !== ''
+            formData.dob.trim() !== '' &&
+            formData.gender.trim() !== '' &&
+            formData.location.trim() !== '';
+
         setIsFormValid(requiredFieldsFilled);
     }, [formData]);
 
     const handleInputChange = (key: string, value: string) => {
         setFormData({ ...formData, [key]: value });
+
+        // Validate name
+        if (key === 'name') {
+            if (value.trim().length < 3 || value.trim().length > 30) {
+                setNameError('Name must be between 3 and 30 characters.');
+            } else {
+                setNameError('');
+            }
+        }
+
+        // Validate gender
+        if (key === 'gender' && value.trim() === '') {
+            setGenderError('Please select your gender.');
+        } else {
+            setGenderError('');
+        }
+
+        // Validate location
+        if (key === 'location' && value.trim() === '') {
+            setLocationError('Please select your location.');
+        } else {
+            setLocationError('');
+        }
     };
 
     const today = new Date();
-    today.setFullYear(today.getFullYear() - 16); // Subtract 16 years
+    today.setFullYear(today.getFullYear() - 16); // Subtract 16 years for DOB validation
     const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
-    console.log(maxDate)
 
     const handleSubmit = async () => {
-        if (isFormValid) {
+        if (isFormValid && !nameError) { // Add nameError check here
             try {
-                // Retrieve token and user ID from sessionStorage
                 const access_token = sessionStorage.getItem('access_token');
                 const user_id = sessionStorage.getItem('user_id');
-
+    
                 if (!access_token || !user_id) {
                     alert('Error: User not logged in.');
                     return;
                 }
-
-                // Make POST request to backend to save profile
+    
                 const response = await fetch(`http://localhost:8000/petowner`, {
                     method: 'POST',
                     headers: {
@@ -139,10 +164,10 @@ const CaretakerProfileNew = () => {
                     },
                     body: JSON.stringify({
                         ...formData,
-                        user_id, // Send user ID as part of the payload
+                        user_id,
                     }),
                 });
-
+    
                 if (response.ok) {
                     alert('Profile saved successfully!');
                 } else {
@@ -155,6 +180,7 @@ const CaretakerProfileNew = () => {
             alert('Please fill out all required fields.');
         }
     };
+    
 
     return (
         <div className="flex flex-col items-center p-5 bg-white min-h-screen">
@@ -179,6 +205,7 @@ const CaretakerProfileNew = () => {
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
                     />
+                    {nameError && <p className="text-red-500 text-sm">{nameError}</p>}
                 </div>
 
                 {/* Date of Birth */}
@@ -197,59 +224,48 @@ const CaretakerProfileNew = () => {
                 {/* Gender Dropdown */}
                 <div className="mb-4">
                     <label className="block text-lg font-bold mb-2">Gender<span className="text-red-500">*</span></label>
-                        <select
-                            className="w-full p-2 border border-orange-500 rounded"
-                            value={formData.gender}
-                            onChange={(e) => handleInputChange('gender', e.target.value)}
-                        >
-                            <option value="">Select Gender</option>
-                            {Object.entries(Gender).map(([key, value]) => (
-                                <option key={key} value={value}>
-                                    {value}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <select
+                        className="w-full p-2 border border-orange-500 rounded"
+                        value={formData.gender}
+                        onChange={(e) => handleInputChange('gender', e.target.value)}
+                    >
+                        <option value="">Select Gender</option>
+                        <option value={Gender.female}>Female</option>
+                        <option value={Gender.male}>Male</option>
+                        <option value={Gender.prefer_not_to_say}>Prefer not to say</option>
+                    </select>
+                    {genderError && <p className="text-red-500 text-sm">{genderError}</p>}
+                </div>
+
                 {/* Location Dropdown */}
                 <div className="mb-4">
                     <label className="block text-lg font-bold mb-2">Location<span className="text-red-500">*</span></label>
-                        <select
-                            className="w-full p-2 border border-orange-500 rounded"
-                            value={formData.location}
-                            onChange={(e) => handleInputChange('location', e.target.value)}
-                        >
-                            <option value="">Select Location</option>
-                            {Object.entries(Location).map(([key, value]) => (
-                                <option key={key} value={value}>
-                                    {value}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <select
+                        className="w-full p-2 border border-orange-500 rounded"
+                        value={formData.location}
+                        onChange={(e) => handleInputChange('location', e.target.value)}
+                    >
+                        <option value="">Select Location</option>
+                        {Object.values(Location).map((location) => (
+                            <option key={location} value={location}>{location}</option>
+                        ))}
+                    </select>
+                    {locationError && <p className="text-red-500 text-sm">{locationError}</p>}
+                </div>
 
-            </div>
-
-            {/* Save Button */}
-            <button
-                className="poppins bg-orange-500 text-white py-2 px-4 rounded mt-4"
-                onClick={handleSubmit}
-            >
-                Save
-            </button>
-
-            <Image src="/line1.png" alt="White Puppy" width={160} height={180} className="my-5" />
-
-            {/* Add Service Section */}
-            <div className="flex flex-col items-center mt-10">
-                <Link href="/signout/signup/createProfile/petOwnerProfile/addPet" className="flex items-center justify-center w-16 h-16 rounded-full">                    
-                <Image src="/addIcon.png" alt="White Puppy" width={160} height={160} className="my-5" />
-                </Link>
-                <p className="poppins text-lg text-gray-500 mt-2">Start adding your pets!</p>
+                {/* Submit Button */}
+                <div className="flex justify-center mt-6">
+                    <button
+                        className="w-full py-3 bg-orange-500 text-white text-lg font-bold rounded"
+                        onClick={handleSubmit}
+                        disabled={!isFormValid}
+                    >
+                        Submit
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 export default CaretakerProfileNew;
-
-

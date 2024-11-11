@@ -92,7 +92,7 @@ const Login = () => {
  
       {/* Email */} 
       <div className="poppins w-full max-w-xs mt-6"> 
-        <label className="block text-gray-700 text-sm font-bold mb-2">Email*</label> 
+        <label className="block text-gray-700 text-sm font-bold mb-2">Email<span className="text-red-500">*</span></label> 
         <input 
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
           type="email" 
@@ -104,7 +104,7 @@ const Login = () => {
  
       {/* Password */} 
       <div className="poppins w-full max-w-xs mt-4"> 
-        <label className="block text-gray-700 text-sm font-bold mb-2">Password*</label> 
+        <label className="block text-gray-700 text-sm font-bold mb-2">Password<span className="text-red-500">*</span></label> 
         <input 
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
           type="password" 
