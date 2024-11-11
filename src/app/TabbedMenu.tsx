@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faSearch, faComment, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faSearch, faComment, faUser, faBell } from '@fortawesome/free-solid-svg-icons'; // Added faBell import for notifications icon
 import axios from 'axios';
 
 interface UserData {
@@ -40,7 +40,7 @@ const TabbedMenu = () => {
           : `http://localhost:8000/petowner/${userId}`;
 
         const response = await axios.get<UserData>(endpoint, config);
-        setUserName(response.data.name || response.data.user.username);
+        setUserName(response.data.user.username || response.data.name);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -50,20 +50,17 @@ const TabbedMenu = () => {
       const profileType = Number(sessionStorage.getItem('profile_type'));
       const newPath = profileType === 2 ? '/profile-caretaker' : '/profile-petOwner';
       setProfilePath(newPath);
-      // Fetch user data whenever profile type changes
       fetchUserData();
     }
 
-    // Initial fetch and check
     checkProfileType();
 
-    // Set up an interval to periodically check for updates
-    const interval = setInterval(fetchUserData, 1000); // Check every second
+    const interval = setInterval(fetchUserData, 1000);
 
     return () => {
-      clearInterval(interval); // Clean up interval on unmount
+      clearInterval(interval);
     };
-  }, [pathname]); // Re-run when pathname changes
+  }, [pathname]);
 
   const tabs = [
     { href: '/homepage', icon: faHome, label: 'Home' },
@@ -80,10 +77,25 @@ const TabbedMenu = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 flex justify-between bg-white dark:bg-black p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="fixed top-0 left-0 right-0 flex justify-between items-center bg-white dark:bg-black p-4 border-b border-gray-200 dark:border-gray-700">
         <span className="jua text-xl font-bold text-orange-500">PetBuddy</span>
-        <span className="poppinsbold text-l text-orange-500">Hello, {userName}</span>
+        
+        {/* Container for the username and notification icon */}
+        <div className="flex items-center space-x-4">
+          {/* Displaying username */}
+          <span className="poppinsbold text-l text-orange-500">Hello, {userName}</span>
+          
+          {/* New Link for the bell icon that leads to /notifications */}
+          <Link href="/notifications">
+            <FontAwesomeIcon
+              icon={faBell} // Bell icon for notifications
+              className="text-orange-500 text-xl"
+              style={{ cursor: 'pointer' }}
+            />
+          </Link>
+        </div>
       </div>
+      
       <div className="fixed bottom-0 left-0 right-0 flex justify-around bg-white dark:bg-black p-4 border-t border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => (
           <Link key={tab.href} href={tab.href} className="flex flex-col items-center">
