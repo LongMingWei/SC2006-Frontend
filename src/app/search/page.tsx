@@ -8,6 +8,9 @@ import { faMap } from '@fortawesome/free-regular-svg-icons';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
+interface User {
+  id: number;
+}
 
 interface Caretaker {
   name: string;
@@ -16,6 +19,7 @@ interface Caretaker {
   work_exp: number;
   service: Service[]; 
   user_id: number;
+  user: User;
 }
 
 // Type for days of the week
@@ -27,10 +31,12 @@ interface Service {
   service_rate: number;
   service_availability: DayOfWeek[];
   location: string[];
+  caretaker: Caretaker;
 }
 
 export default function UpcomingEvents() {
   const [caretakers, setCaretakers] = useState<Caretaker[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -52,6 +58,14 @@ export default function UpcomingEvents() {
         });
 
         setCaretakers(response.data);
+
+        const responseService = await axios.get<Service[]>('http://localhost:8000/service', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        setServices(responseService.data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching caretakers:', err);
@@ -79,6 +93,9 @@ export default function UpcomingEvents() {
     return <div className="text-red-500 text-center p-4">{error}</div>;
   }
 
+  console.log(caretakers);
+  console.log(services);
+
   return (
     <div className="p-8">
       <div className="flex items-center justify-center mb-8">
@@ -101,7 +118,7 @@ export default function UpcomingEvents() {
                 <h2 className="poppins text-xl font-semibold">{caretaker.name}</h2>
                 <p className="poppins text-gray-600">{`Gender: ${caretaker.gender}`}</p>             
                 <p className="poppins text-gray-600">{`Experience: ${caretaker.work_exp}`}</p>
-                <p className="poppins text-gray-600">{`Services: ${caretaker?.service?.map(s => s.service).join(', ')}`}</p>
+                <p className="poppins text-gray-600">{`Services: ${services.filter(s => s.caretaker.user.id === caretaker.user_id)?.length ? services.filter(s => s.caretaker.user.id === caretaker.user_id).map(s => s.service).join(', ') : 'No services available'}`}</p>
                 </div>
             </div>
             <div className="border-t-4 border-orange-500"></div>

@@ -1,13 +1,199 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { usePathname } from 'next/navigation';
+import axios from 'axios';
+import router from 'next/router';
 
-const caretakers = [
+// Type for days of the week
+type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+
+// Type for service details
+interface Service {
+  service_id: number;
+  service: string;
+  service_rate: number;
+  service_availability: DayOfWeek[];
+  location: string[];
+}
+
+export default function BookingPage() {
+  const [serviceBooking, setService] = useState<Service | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const pathname = usePathname();
+  const caretakerId = parseInt(pathname.split('/')[3] || '0', 10);
+  const serviceId = parseInt(pathname.split('/')[4] || '0', 10);
+
+  const token = sessionStorage.getItem('access_token');
+
+  if (!token) {
+    router.push('/signout/login');
+    return;
+  }
+
+  useEffect(() => {
+    const fetchCaretaker = async () => {
+
+      try {
+        const response = await axios.get<Service>(`http://localhost:8000/service/${caretakerId}/${serviceId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        setService(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching caretakers:', err);
+        setService(null);
+        setError('Failed to load caretakers');
+        setLoading(false);
+      }
+    };
+
+    fetchCaretaker();
+  }, []);
+
+  if (serviceBooking === null) {
+    return <div className="text-red-500 text-center p-4">Service not found</div>;
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B3D]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center p-4">{error}</div>;
+  }
+
+  const [selectedPet, setSelectedPet] = useState('');
+  const initialDate = new Date();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
+    const [hours, minutes] = serviceBooking.service_availability[0].split(':').map(Number);
+    initialDate.setHours(hours, minutes, 0, 0);
+    return initialDate;
+  });
+  const [selectedTimeslots, setSelectedTimeslots] = useState<Date[]>([]);
+
+  const handlePetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPet(event.target.value);
+  };
+
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      setSelectedTimeslots(prev => [...prev, date]);
+    }
+  };
+
+  const handleTimeslotCancel = (index: number) => {
+    setSelectedTimeslots(prev => prev.filter((_, i) => i !== index));
+  };
+
+  /* const filterTimes = (time: Date) => {
+    const timeString = time.toTimeString().slice(0, 5);
+    return serviceBooking.service_availability.includes(timeString);
+  };
+
+  const handleSaveAndProceedToPayment = () => {
+    const dataToSave = {
+      caretakerName: caretaker.name,
+      serviceType: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
+      location: caretaker.location, // Assuming location is a property of caretaker
+      petName: selectedPet, // Assuming selectedPet is a state variable
+      timeslots: selectedTimeslots,
+    };
+  
+    localStorage.setItem('bookingData', JSON.stringify(dataToSave));
+  }; */
+
+  return (
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="p-8 w-full max-w-lg">
+        <div className="flex items-center mb-8">
+          <Image src='/dog.png' alt={serviceBooking.service} width={180} height={180} className="rounded-full mr-4" />
+          <div className="ml-4">
+            <h1 className="jua text-3xl font-bold">{serviceBooking.service}</h1>
+            <Link href={`/search/caretaker/${caretakerId}/${serviceId}`}>
+              <div className="poppins text-orange-500 text-xl mb-4">← Back</div>
+            </Link>
+          </div>
+        </div>
+        <div className="mb-4 poppins">
+          <p><strong>Service:</strong> {serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1)}</p>
+          <p><strong>Rates:</strong> {serviceBooking.service_rate}</p>
+          <p><strong>Location:</strong> {serviceBooking.location}</p>
+        </div>
+        <div className="mb-4 poppins">
+          <label htmlFor="pet" className="block text-lg font-medium text-gray-700">Choose Pet</label>
+          <select
+            id="pet"
+            name="pet"
+            value={selectedPet}
+            onChange={handlePetChange}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option value="">Select a pet</option>
+            <option value="Pet 1">Pet 1</option>
+            <option value="Pet 2">Pet 2</option>
+            <option value="Pet 3">Pet 3</option>
+          </select>
+        </div>
+        <div className="mb-8 poppins">
+          <label htmlFor="date" className="block text-lg font-medium text-gray-700">Choose Date and Time</label>
+          <div className="flex items-center">
+            <DatePicker
+              selected={selectedDate}
+              onChange={(date) => setSelectedDate(date)}
+              showTimeSelect
+              // filterTime={filterTimes}
+              dateFormat="Pp"
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            />
+            <button
+              onClick={() => handleDateChange(selectedDate)}
+              className="ml-16 bg-orange-500 text-white px-4 py-2 rounded"
+            >
+              Add Timeslot
+            </button>
+          </div>
+        </div>
+        <div className="mb-8 poppins">
+          <h3 className="text-lg font-medium text-gray-700">Selected Timeslots:</h3>
+          {selectedTimeslots.map((timeslot, index) => (
+            <div key={index} className="flex justify-between items-center">
+              <p>{timeslot.toLocaleString()}</p>
+              <button
+                onClick={() => handleTimeslotCancel(index)}
+                className="text-red-500 hover:text-red-700"
+              >
+                Cancel
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center">
+          <Link href={`/search/caretaker/${caretakerId}/${serviceId}/booking/payment`}> {/*onClick={handleSaveAndProceedToPayment}*/}
+            <div className="poppins bg-orange-500 text-white px-4 py-2 rounded">Book Now</div>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+/* const caretakers = [
   {
     id: 1,
     name: 'Caretaker 1',
@@ -92,136 +278,4 @@ const caretakers = [
     imageUrl: '/dog.png',
     introduction: 'I am Caretaker 3, with 7 years of experience in pet care.',
   },
-];
-
-export default function BookingPage() {
-  const pathname = usePathname();
-  const caretakerId = parseInt(pathname.split('/')[3] || '0', 10);
-  const caretaker = caretakers.find(c => c.id === caretakerId);
-
-  if (!caretaker) {
-    return <div>Caretaker not found</div>;
-  }
-
-  const serviceName = pathname.split('/')[4];
-  const service = caretaker.servicesOffered.find(s => s.name.toLowerCase() === serviceName.toLowerCase());
-
-  if (!service) {
-    return <div>Service not found</div>;
-  }
-
-  const [selectedPet, setSelectedPet] = useState('');
-  const initialDate = new Date();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
-    const [hours, minutes] = service.availableTimeslots[0].split(':').map(Number);
-    initialDate.setHours(hours, minutes, 0, 0);
-    return initialDate;
-  });
-  const [selectedTimeslots, setSelectedTimeslots] = useState<Date[]>([]);
-
-  const handlePetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPet(event.target.value);
-  };
-
-  const handleDateChange = (date: Date | null) => {
-    if (date) {
-      setSelectedTimeslots(prev => [...prev, date]);
-    }
-  };
-
-  const handleTimeslotCancel = (index: number) => {
-    setSelectedTimeslots(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const filterTimes = (time: Date) => {
-    const timeString = time.toTimeString().slice(0, 5);
-    return service.availableTimeslots.includes(timeString);
-  };
-
-  const handleSaveAndProceedToPayment = () => {
-    const dataToSave = {
-      caretakerName: caretaker.name,
-      serviceType: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-      location: caretaker.location, // Assuming location is a property of caretaker
-      petName: selectedPet, // Assuming selectedPet is a state variable
-      timeslots: selectedTimeslots,
-    };
-  
-    localStorage.setItem('bookingData', JSON.stringify(dataToSave));
-  };
-
-  return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="p-8 w-full max-w-lg">
-        <div className="flex items-center mb-8">
-          <Image src={caretaker.imageUrl} alt={caretaker.name} width={180} height={180} className="rounded-full mr-4" />
-          <div className="ml-4">
-            <h1 className="jua text-3xl font-bold">{caretaker.name}</h1>
-            <Link href={`/search/caretaker/${caretaker.id}/${serviceName}`}>
-              <div className="poppins text-orange-500 text-xl mb-4">← Back</div>
-            </Link>
-          </div>
-        </div>
-        <div className="mb-4 poppins">
-          <p><strong>Experience:</strong> {caretaker.experience}</p>
-          <p><strong>Service:</strong> {serviceName.charAt(0).toUpperCase() + serviceName.slice(1)}</p>
-          <p><strong>Rates:</strong> {service.rates}</p>
-          <p><strong>Location:</strong> {caretaker.location}</p>
-        </div>
-        <div className="mb-4 poppins">
-          <label htmlFor="pet" className="block text-lg font-medium text-gray-700">Choose Pet</label>
-          <select
-            id="pet"
-            name="pet"
-            value={selectedPet}
-            onChange={handlePetChange}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-          >
-            <option value="">Select a pet</option>
-            <option value="Pet 1">Pet 1</option>
-            <option value="Pet 2">Pet 2</option>
-            <option value="Pet 3">Pet 3</option>
-          </select>
-        </div>
-        <div className="mb-8 poppins">
-          <label htmlFor="date" className="block text-lg font-medium text-gray-700">Choose Date and Time</label>
-          <div className="flex items-center">
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date) => setSelectedDate(date)}
-              showTimeSelect
-              filterTime={filterTimes}
-              dateFormat="Pp"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            />
-            <button
-              onClick={() => handleDateChange(selectedDate)}
-              className="ml-16 bg-orange-500 text-white px-4 py-2 rounded"
-            >
-              Add Timeslot
-            </button>
-          </div>
-        </div>
-        <div className="mb-8 poppins">
-          <h3 className="text-lg font-medium text-gray-700">Selected Timeslots:</h3>
-          {selectedTimeslots.map((timeslot, index) => (
-            <div key={index} className="flex justify-between items-center">
-              <p>{timeslot.toLocaleString()}</p>
-              <button
-                onClick={() => handleTimeslotCancel(index)}
-                className="text-red-500 hover:text-red-700"
-              >
-                Cancel
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-center">
-          <Link href={`/search/caretaker/${caretaker.id}/${serviceName}/booking/payment`} onClick={handleSaveAndProceedToPayment}>
-            <div className="poppins bg-orange-500 text-white px-4 py-2 rounded">Book Now</div>
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+]; */

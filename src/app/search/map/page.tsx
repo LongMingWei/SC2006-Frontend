@@ -5,56 +5,185 @@ import { APIProvider, Map, useMap, AdvancedMarker, MapCameraChangedEvent } from 
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import type { Marker } from '@googlemaps/markerclusterer';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import Link from 'next/link';
 
-type Caretaker = {
-  id: number;
-  name: string;
-  location: google.maps.LatLngLiteral;
-  avatar: string;
-  starRating: number;
-  services: string[];
-  availability: string;
-  rates: string;
+type Coordinates = {
+  lat: number;
+  lng: number;
 };
 
-const caretakers: Caretaker[] = [
-  {
-    id: 1,
-    name: 'Caretaker 1',
-    location: { lat: -33.8567844, lng: 151.213108 },
-    avatar: '/dog.png',
-    starRating: 4.5,
-    services: ['Walking', 'Sitting'],
-    availability: 'Weekdays',
-    rates: '$30/hour',
-  },
-  {
-    id: 2,
-    name: 'Caretaker 2',
-    location: { lat: -33.8472767, lng: 151.2188164 },
-    avatar: '/dog.png',
-    starRating: 4.0,
-    services: ['Walking'],
-    availability: 'Weekends',
-    rates: '$25/hour',
-  },
-  {
-    id: 3,
-    name: 'Caretaker 3',
-    location: { lat: -33.8209738, lng: 151.2563253 },
-    avatar: '/dog.png',
-    starRating: 4.7,
-    services: ['Walking', 'Sitting'],
-    availability: 'Weekdays and Weekends',
-    rates: '$50/hour',
-  },
-];
+const LocationCoordinates: { [key: string]: Coordinates } = {
+  DhobyGhaut: { lat: 1.2983, lng: 103.8477 },
+  OutramPark: { lat: 1.2783, lng: 103.8398 },
+  Chinatown: { lat: 1.2834, lng: 103.8438 },
+  ClarkeQuay: { lat: 1.2883, lng: 103.8470 },
+  BoatQuay: { lat: 1.2879, lng: 103.8503 },
+  CityHall: { lat: 1.2931, lng: 103.8520 },
+  Esplanade: { lat: 1.2895, lng: 103.8555 },
+  RafflesPlace: { lat: 1.2834, lng: 103.8514 },
+  Bayfront: { lat: 1.2816, lng: 103.8603 },
+  MarinaBay: { lat: 1.2835, lng: 103.8606 },
+  Promontory: { lat: 1.2796, lng: 103.8554 },
+  MarinaBaySands: { lat: 1.2834, lng: 103.8609 },
+  Bugis: { lat: 1.3005, lng: 103.8565 },
+  Lavender: { lat: 1.3077, lng: 103.8631 },
+  Kallang: { lat: 1.3111, lng: 103.8719 },
+  GeylangBahru: { lat: 1.3193, lng: 103.8711 },
+  PotongPasir: { lat: 1.3316, lng: 103.8687 },
+  Serangoon: { lat: 1.3496, lng: 103.8739 },
+  DhobyGhautInterchange: { lat: 1.2983, lng: 103.8469 },
+  ToaPayoh: { lat: 1.3321, lng: 103.8470 },
+  Braddell: { lat: 1.3417, lng: 103.8490 },
+  Bishan: { lat: 1.3504, lng: 103.8485 },
+  Marymount: { lat: 1.3493, lng: 103.8399 },
+  Bartley: { lat: 1.3415, lng: 103.8801 },
+  PayaLebar: { lat: 1.3182, lng: 103.8921 },
+  Eunos: { lat: 1.3195, lng: 103.9032 },
+  Bedok: { lat: 1.3236, lng: 103.9270 },
+  Tampines: { lat: 1.3496, lng: 103.9568 },
+  PasirRis: { lat: 1.3721, lng: 103.9492 },
+  Simei: { lat: 1.3435, lng: 103.9531 },
+  Expo: { lat: 1.3344, lng: 103.9617 },
+  TanahMerah: { lat: 1.3277, lng: 103.9469 },
+  ChangiAirport: { lat: 1.3644, lng: 103.9915 },
+  BedokNorth: { lat: 1.3332, lng: 103.9273 },
+  Hougang: { lat: 1.3713, lng: 103.8922 },
+  SerangoonNorth: { lat: 1.3735, lng: 103.8711 },
+  Yishun: { lat: 1.4291, lng: 103.8355 },
+  Sembawang: { lat: 1.4490, lng: 103.8200 },
+  Woodlands: { lat: 1.4362, lng: 103.7867 },
+  Admiralty: { lat: 1.4406, lng: 103.8004 },
+  Marsiling: { lat: 1.4324, lng: 103.7744 },
+  WoodlandsSouth: { lat: 1.4337, lng: 103.7811 },
+  BukitPanjang: { lat: 1.3774, lng: 103.7631 },
+  Jelapang: { lat: 1.3837, lng: 103.7615 },
+  ChuaChuKang: { lat: 1.3857, lng: 103.7441 },
+  LotOne: { lat: 1.3851, lng: 103.7449 },
+  BukitGombak: { lat: 1.3571, lng: 103.7517 },
+  BeautyWorld: { lat: 1.3411, lng: 103.7756 },
+  LittleIndia: { lat: 1.3061, lng: 103.8496 },
+  Orchard: { lat: 1.3048, lng: 103.8318 },
+  Somerset: { lat: 1.3003, lng: 103.8370 },
+  Novena: { lat: 1.3204, lng: 103.8432 },
+  ToaPayohNorth: { lat: 1.3363, lng: 103.8455 },
+  NovenaNorth: { lat: 1.3271, lng: 103.8485 },
+  BishanNorth: { lat: 1.3590, lng: 103.8473 },
+  SerangoonSouth: { lat: 1.3481, lng: 103.8687 },
+  YishunNorth: { lat: 1.4325, lng: 103.8347 },
+  SembawangNorth: { lat: 1.4507, lng: 103.8274 },
+  BedokNorthEast: { lat: 1.3380, lng: 103.9273 },
+  JurongEast: { lat: 1.3334, lng: 103.7421 },
+  JurongWest: { lat: 1.3405, lng: 103.7086 },
+  BukitBatok: { lat: 1.3492, lng: 103.7494 },
+  LotOneNorth: { lat: 1.3892, lng: 103.7457 },
+  WoodlandsWest: { lat: 1.4378, lng: 103.7853 },
+  ThomsonEastCoast: { lat: 1.3510, lng: 103.8347 },
+  TanjongPagar: { lat: 1.2764, lng: 103.8458 },
+  Bencoolen: { lat: 1.2987, lng: 103.8529 },
+  KingAlbertPark: { lat: 1.3351, lng: 103.7769 },
+  UpperBukitTimah: { lat: 1.3482, lng: 103.7697 },
+  BukitTimah: { lat: 1.3404, lng: 103.7741 },
+  JooKong: { lat: 1.3272, lng: 103.6787 },
+  JurongLake: { lat: 1.3342, lng: 103.7274 },
+  YishunEast: { lat: 1.4305, lng: 103.8327 },
+  Kranji: { lat: 1.4253, lng: 103.7623 },
+  BukitGombakEast: { lat: 1.3562, lng: 103.7513 },
+  Changi: { lat: 1.3675, lng: 103.9877 },
+  PuahRoad: { lat: 1.3061, lng: 103.8523 },
+  OrchardRoad: { lat: 1.3049, lng: 103.8318 }
+};
+
+interface User {
+  id: number;
+}
+
+interface Caretaker {
+  name: string;
+  dob: string;      
+  gender: 'male' | 'female' | 'other';
+  work_exp: number;
+  service: Service[]; 
+  user_id: number;
+  user: User;
+}
+
+// Type for days of the week
+type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+
+// Type for service details
+interface Service {
+  service_id: number;
+  service: string;
+  service_rate: number;
+  service_availability: DayOfWeek[];
+  location: string[];
+  caretaker: Caretaker;
+}
+
 
 export default function Mapper() {
     useEffect(() => {
       console.log('API Key:', process.env.NEXT_PUBLIC_MAPS_API_KEY);
     }, []);
+
+    const [caretakers, setCaretakers] = useState<Caretaker[]>([]);
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+      const fetchCaretakers = async () => {
+        const token = sessionStorage.getItem('access_token');
+        
+        if (!token) {
+          router.push('/signout/login');
+          return;
+        }
+  
+        try {
+          const response = await axios.get<Caretaker[]>('http://localhost:8000/caretaker', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+  
+          setCaretakers(response.data);
+  
+          const responseService = await axios.get<Service[]>('http://localhost:8000/service', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+  
+          setServices(responseService.data);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error fetching caretakers:', err);
+          if (axios.isAxiosError(err) && err.response?.status === 401) {
+            sessionStorage.clear();
+            router.push('/signout/login');
+          }
+          setError('Failed to load caretakers');
+          setLoading(false);
+        }
+      };
+  
+      fetchCaretakers();
+    }, [router]);
+
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B3D]"></div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return <div className="text-red-500 text-center p-4">{error}</div>;
+    }
   
     return (
       <><Link href="/search">
@@ -64,18 +193,18 @@ export default function Mapper() {
       </Link><APIProvider apiKey={process.env.NEXT_PUBLIC_MAPS_API_KEY || ''} onLoad={() => console.log('Maps API has loaded.')}>
           <Map
             defaultZoom={13}
-            defaultCenter={{ lat: -33.860664, lng: 151.208138 }}
+            defaultCenter={{ lat: 1.36667, lng: 103.80000 }}
             onCameraChanged={(ev: MapCameraChangedEvent) => console.log('camera changed:', ev.detail.center, 'zoom:', ev.detail.zoom)}
             mapId='da37f3254c6a6d1c'
             style={{ width: '100%', height: '100vh' }}
           >
-            <CaretakerMarkers caretakers={caretakers} />
+            <CaretakerMarkers caretakers={caretakers} services={services} />
           </Map>
         </APIProvider></>
     );
   }
   
-  const CaretakerMarkers = (props: { caretakers: Caretaker[] }) => {
+  const CaretakerMarkers = (props: { caretakers: Caretaker[] ; services: Service[]}) => {
     const map = useMap();
     const router = useRouter();
     const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
@@ -86,42 +215,53 @@ export default function Mapper() {
         clusterer.current = new MarkerClusterer({ map });
       }
   
-      const newMarkers: { [key: string]: Marker } = {};
-      props.caretakers.forEach((caretaker) => {
+    const newMarkers: { [key: string]: Marker } = {};
+      
+  props.services.forEach((service) => {
+      console.log(service);
+    service.location.forEach((loc) => {      
+      const serviceLocation = LocationCoordinates[loc.replace(/\s+/g, '')];
+      console.log(serviceLocation);
+      console.log(loc);
+      if (serviceLocation) {
         const marker = new google.maps.Marker({
-          position: caretaker.location,
+          position: serviceLocation,
           map,
-          title: caretaker.name,
+          title: service.caretaker.name,
         });
-  
+
         const infoWindow = new google.maps.InfoWindow({
           content: `
             <div class="poppins" style="display: flex; align-items: center;">
-              <img src="${caretaker.avatar}" alt="${caretaker.name}" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;" />
+              <img src="/janedoe.png" alt="${service.caretaker.name}" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;" />
               <div>
-                <h3>${caretaker.name}</h3>
-                <p>⭐ ${caretaker.starRating}</p>
-                <p>Services: ${caretaker.services.join(', ')}</p>
-                <p>Availability: ${caretaker.availability}</p>
-                <p>Rates: ${caretaker.rates}</p>
+                <h3>${service.caretaker.name}</h3>
+                <br />
+                <p>Service: ${service.service}</p>
+                <p>⭐ ${service.service_rate}</p>
+                <p>Rate: ${service.service_rate}</p>
+                <p>Availability: ${service.service_availability.join(', ')}</p>
+                <p>Location: ${loc}</p>
               </div>
             </div>
           `,
         });
-  
+
         infoWindow.open(map, marker); // Open info window when the map is launched
-  
+
         marker.addListener('click', () => {
           infoWindow.open(map, marker);
           setTimeout(() => {
-            router.push(`/search/caretaker/${caretaker.id}`);
-          }); 
+            router.push(`/search/caretaker/${service.caretaker.user.id}/${service.service_id}`);
+          });
         });
-  
-        newMarkers[caretaker.id] = marker;
+
+        newMarkers[`${service.caretaker.name}-${service.service}-${loc}`] = marker;
         clusterer.current?.addMarker(marker);
-      });
-  
+      }
+    });
+  });
+      
       setMarkers(newMarkers);
   
       return () => {
@@ -132,3 +272,37 @@ export default function Mapper() {
   
     return null;
   };
+
+
+  /* const caretakers: Caretaker[] = [
+    {
+      id: 1,
+      name: 'Caretaker 1',
+      location: { lat: -33.8567844, lng: 151.213108 },
+      avatar: '/dog.png',
+      starRating: 4.5,
+      services: ['Walking', 'Sitting'],
+      availability: 'Weekdays',
+      rates: '$30/hour',
+    },
+    {
+      id: 2,
+      name: 'Caretaker 2',
+      location: { lat: -33.8472767, lng: 151.2188164 },
+      avatar: '/dog.png',
+      starRating: 4.0,
+      services: ['Walking'],
+      availability: 'Weekends',
+      rates: '$25/hour',
+    },
+    {
+      id: 3,
+      name: 'Caretaker 3',
+      location: { lat: -33.8209738, lng: 151.2563253 },
+      avatar: '/dog.png',
+      starRating: 4.7,
+      services: ['Walking', 'Sitting'],
+      availability: 'Weekdays and Weekends',
+      rates: '$50/hour',
+    },
+  ]; */
