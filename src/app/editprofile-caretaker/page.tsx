@@ -123,6 +123,11 @@ const EditProfile: React.FC = () => {
     }));
   };
 
+  const today = new Date();
+  today.setFullYear(today.getFullYear() - 16); // Subtract 16 years
+  const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
+  console.log(maxDate)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -241,6 +246,7 @@ const EditProfile: React.FC = () => {
             type="date"
             id="dob"
             name="dob"
+            max = {maxDate}
             value={formData.dob}
             onChange={handleChange}
             className="w-full p-3 border border-[#FF6B3D] rounded-lg"

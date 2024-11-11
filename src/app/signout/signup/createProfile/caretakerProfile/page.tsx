@@ -34,6 +34,11 @@ const CaretakerProfile = () => {
         setFormData({ ...formData, [key]: value });
     };
 
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 16); // Subtract 16 years
+    const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
+    console.log(maxDate)
+
     const handleSubmit = async () => {
         if (isFormValid) {
             try {
@@ -98,6 +103,7 @@ const CaretakerProfile = () => {
                         placeholder="YYYY-MM-DD"
                         value={formData.dob}
                         onChange={(e) => handleInputChange('dob', e.target.value)}
+                        max={maxDate}
                     />
                 </div>
 

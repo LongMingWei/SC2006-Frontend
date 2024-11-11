@@ -248,7 +248,10 @@ const EditServiceProfile = () => {
                     <div className="mb-4">
                         <label className="block text-lg font-bold mb-2">Service Rates*</label>
                         <input
-                            type="text"
+                            type="number"
+                            min = "5"
+                            step = "5"
+                            max = "200"
                             className="w-full p-2 border border-orange-500 rounded"
                             placeholder="50, etc."
                             value={formData.rates}
