@@ -106,7 +106,7 @@ export default function UpcomingEvents() {
         <Link key={caretaker.user_id} href={`search/caretaker/${caretaker.user_id}`}>
             <div className="w-full cursor-pointer">
             <div className="border-t-4 border-orange-500"></div>
-            <div className="flex items-center justify-center p-4">
+            <div className="flex items-center justify-left p-4">
                 <Image
                 src="/janedoe.png"
                 alt={caretaker.name}

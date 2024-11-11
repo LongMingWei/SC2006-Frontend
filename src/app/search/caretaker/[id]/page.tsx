@@ -6,6 +6,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
 import router from 'next/router';
+import { useRouter } from 'next/navigation'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faComment } from '@fortawesome/free-solid-svg-icons'; 
 import { set } from 'react-datepicker/dist/date_utils';
 
 interface Caretaker {
@@ -51,6 +54,7 @@ export default function CaretakerPage() {
   const caretakerId = parseInt(pathname.split('/').pop() || '0', 10);
 
   const token = sessionStorage.getItem('access_token');
+  const router = useRouter();
 
   if (!token) {
     router.push('/signout/login');
@@ -109,7 +113,7 @@ export default function CaretakerPage() {
       averageRating
     };
   });
-  
+
   return (
     <div className="p-8 justify-center items-center min-h-screen">
       <div className="flex items-center">
@@ -117,8 +121,16 @@ export default function CaretakerPage() {
           <div className="text-orange-500 text-3xl mr-8 inline-block">←</div>
         </Link>
         <Image src='/janedoe.png' alt={caretaker.name} width={90} height={90} className="rounded-full" />
-        <div className="ml-4">
+        <div className="ml-4 flex items-center justify-between w-full">
           <h1 className="jua text-3xl font-bold">{caretaker.name}</h1>
+          
+          {/* Chat Button */}
+          <button 
+            onClick={() => router.push(`/messages/${caretakerId}`)}
+            className="ml-auto flex items-center justify-center bg-orange-500 text-white px-4 py-2 rounded">
+            <FontAwesomeIcon icon={faComment} className="mr-2"/> Chat
+          </button>
+
           {/* <p className="poppins text-lg">{'⭐'.repeat(Math.round(servicesWithAverageRating.averageRating))} ({averageRating.toFixed(1)})</p> */}
         </div>
       </div>
