@@ -104,7 +104,7 @@ const AddServiceProfile = () => {
                 {/* Form fields */}
                 <div className="poppins mt-6">
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Pet Name*</label>
+                        <label className="block text-lg font-bold mb-2">Pet Name<span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
@@ -115,7 +115,7 @@ const AddServiceProfile = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Species*</label>
+                        <label className="block text-lg font-bold mb-2">Species<span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
@@ -126,7 +126,7 @@ const AddServiceProfile = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Breed*</label>
+                        <label className="block text-lg font-bold mb-2">Breed<span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
@@ -137,18 +137,20 @@ const AddServiceProfile = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Age*</label>
+                        <label className="block text-lg font-bold mb-2">Age<span className="text-red-500">*</span></label>
                         <input
-                            type="text"
+                            type="number"
+                            min="0"
+                            step="0.5"
                             className="w-full p-2 border border-orange-500 rounded"
-                            placeholder="1 year, etc."
+                            placeholder="1, 1.5, etc."
                             value={formData.age}
                             onChange={(e) => handleInputChange('age', e.target.value)}
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Health Conditions*</label>
+                        <label className="block text-lg font-bold mb-2">Health Conditions</label>
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"

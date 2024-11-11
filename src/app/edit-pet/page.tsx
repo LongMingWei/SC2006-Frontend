@@ -258,13 +258,13 @@ const EditPetProfile: React.FC = () => {
             className="w-full p-3 border border-[#FF6B3D] rounded-lg"
             required
             min="0"
-            step="0.1"
+            step="0.5"
           />
         </div>
 
         <div>
           <label htmlFor="pet_health" className="block text-gray-700 mb-2">
-            Pet Health Status<span className="text-red-500">*</span>
+            Pet Health Status<span className="text-red-500"></span>
           </label>
           <textarea
             id="pet_health"

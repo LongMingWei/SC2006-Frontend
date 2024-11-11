@@ -210,7 +210,7 @@ const AddServiceProfile = () => {
                 <div className="poppins mt-6">
                     {/* Services */}
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Type of Service*</label>
+                        <label className="block text-lg font-bold mb-2">Type of Service<span className="text-red-500">*</span></label>
                         <select
                             className="w-full p-2 border border-orange-500 rounded"
                             value={formData.services}
@@ -225,7 +225,7 @@ const AddServiceProfile = () => {
 
                     {/* Rates */}
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Service Rates*</label>
+                        <label className="block text-lg font-bold mb-2">Service Rates<span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             min = "5"
@@ -240,7 +240,7 @@ const AddServiceProfile = () => {
 
                     {/* Availability */}
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Availability*</label>
+                        <label className="block text-lg font-bold mb-2">Availability<span className="text-red-500">*</span></label>
                         <div className="grid grid-cols-3 gap-2">
                             {Object.values(Availability).map((day) => (
                                 <button
@@ -257,7 +257,7 @@ const AddServiceProfile = () => {
 
                     {/* Location */}
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Location*</label>
+                        <label className="block text-lg font-bold mb-2">Location<span className="text-red-500">*</span></label>
                         <div className="grid grid-cols-3 gap-2">
                             {Object.values(Location).map((location) => (
                                 <button

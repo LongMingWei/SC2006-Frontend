@@ -172,7 +172,7 @@ const CaretakerProfileNew = () => {
             <div className="poppins w-full max-w-md">
                 {/* Name */}
                 <div className="mb-4">
-                    <label className="block text-lg font-bold mb-2">Name*</label>
+                    <label className="block text-lg font-bold mb-2">Name<span className="text-red-500">*</span></label>
                     <input
                         className="w-full p-2 border border-orange-500 rounded"
                         placeholder="Your name"
@@ -183,7 +183,7 @@ const CaretakerProfileNew = () => {
 
                 {/* Date of Birth */}
                 <div className="mb-4">
-                    <label className="block text-lg font-bold mb-2">Date of Birth*</label>
+                    <label className="block text-lg font-bold mb-2">Date of Birth<span className="text-red-500">*</span></label>
                     <input
                         type="date"
                         className="w-full p-2 border border-orange-500 rounded"
@@ -196,7 +196,7 @@ const CaretakerProfileNew = () => {
 
                 {/* Gender Dropdown */}
                 <div className="mb-4">
-                    <label className="block text-lg font-bold mb-2">Gender</label>
+                    <label className="block text-lg font-bold mb-2">Gender<span className="text-red-500">*</span></label>
                         <select
                             className="w-full p-2 border border-orange-500 rounded"
                             value={formData.gender}
@@ -212,7 +212,7 @@ const CaretakerProfileNew = () => {
                     </div>
                 {/* Location Dropdown */}
                 <div className="mb-4">
-                    <label className="block text-lg font-bold mb-2">Location</label>
+                    <label className="block text-lg font-bold mb-2">Location<span className="text-red-500">*</span></label>
                         <select
                             className="w-full p-2 border border-orange-500 rounded"
                             value={formData.location}
