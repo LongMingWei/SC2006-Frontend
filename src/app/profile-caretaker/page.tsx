@@ -99,7 +99,7 @@ const ServiceCard: React.FC<{
         <h3 className="font-bold">{service.service}</h3>
         <p className="text-sm text-gray-600">${service.service_rate}</p>
         <Link 
-          href="/editprofile-service" 
+          href="/edit-service" 
           className="text-orange-400 text-sm"
           onClick={handleEditClick}
         >
@@ -110,14 +110,8 @@ const ServiceCard: React.FC<{
   );
 };
 
-const AddServiceButton: React.FC = () => (
-  <div className="flex-shrink-0 flex items-center h-[160px]">
-    <Link href="/signout/signup/createProfile/caretakerProfile/addService">
-      <button className="bg-[#F4B183] text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl hover:bg-[#eb9e67] transition-colors">
-        +
-      </button>
-    </Link>
-  </div>
+const AddServiceButton = () => (
+  <button className="bg-orange-300 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl">+</button>
 );
 
 const GeneralItem: React.FC<{
@@ -135,7 +129,7 @@ const GeneralItem: React.FC<{
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [bookings, setBookings] = useState<BookingEvent[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string>('/johndoe.png');
@@ -193,31 +187,17 @@ const ProfilePage: React.FC = () => {
         // Fetch profile picture
         await fetchProfilePicture(userId);
 
-        // Fetch bookings using the history endpoint
-        const bookingsResponse = await axios.get<{ events: BookingEvent[] }>(
-          `http://localhost:8000/calendar/history/${userId}`,
-          config
-        );
-        
-        if (bookingsResponse.data) {
-          // Filter for upcoming bookings
-          const upcomingBookings = bookingsResponse.data.events.filter(event => 
-            event.status === 'confirmed'
-          ).sort((a, b) => 
-            new Date(a.start).getTime() - new Date(b.start).getTime()
-          );
-
-          setBookings(upcomingBookings);
-        }
-
+        setServices(profileResponse.data.service || []);
         setError(null);
       } catch (err: any) {
-        console.error('Error fetching data:', err);
-        setError(err.response?.data?.detail || 'Failed to load profile');
+        console.error('Error fetching profile:', err);
+        setProfile(null);
+        setServices([]);
         if (err.response?.status === 401) {
           sessionStorage.clear();
           router.push('/signout/login');
         }
+        setError(err.response?.data?.detail || 'Failed to fetch profile');
       } finally {
         setLoading(false);
       }
@@ -235,18 +215,6 @@ const ProfilePage: React.FC = () => {
     };
   }, [profilePicture]);
 
-  const formatDateTime = (dateTimeStr: string) => {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -257,48 +225,24 @@ const ProfilePage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-red-500">{error}</div>
+      <div className="p-4 text-red-500">
+        Error: {error}
       </div>
     );
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="poppins bg-white h-full pb-20">
       <main className="p-4">
         <h2 className="text-2xl font-bold mb-4">Profile</h2>
-        {profile && profile.user ? (
-          <ProfileCard 
-            name={profile.name} 
-            email={profile.user.email} 
-            username={`@${profile.user.username}`} 
-            imgUrl={profilePicture} 
-          />
-        ) : (
-          <div className="bg-orange-50 rounded-lg p-4 mb-6">
-            <p>Loading profile information...</p>
-          </div>
-        )}
+        <ProfileCard 
+          name={profile?.name || "Loading..."} 
+          email={profile?.user.email || "Loading..."} 
+          username={`@${profile?.user.username || "loading"}`} 
+          imgUrl={profilePicture}
+        />
         
-        <h2 className="text-3xl font-bold mb-4">My Bookings</h2>
-        <div className="flex overflow-x-auto pb-4 space-x-4">
-          {bookings.length > 0 ? (
-            bookings.map((booking, index) => (
-              <BookingCard 
-                key={index}
-                name={booking.service}
-                petName={booking.pet_name}
-                date={formatDateTime(booking.start)}
-                location={booking.location}
-                imgUrl="/kimmydog.png"
-              />
-            ))
-          ) : (
-            <p className="text-gray-500">No upcoming bookings</p>
-          )}
-        </div>
-
-        <h2 className="text-3xl font-bold mb-4">My Services</h2>
+        <h2 className="text-2xl font-bold mb-4">My Services</h2>
         <div className="relative">
           <div className="flex overflow-x-auto pb-4 scrollbar-hide space-x-4">
             {profile?.service?.map((service) => (
