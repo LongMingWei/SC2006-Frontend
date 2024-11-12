@@ -169,6 +169,11 @@ export default function EventDetails() {
           <p className="mt-4 text-gray-500">No reviews yet</p>
         )}
       </div>
+      <Link href={`/search/caretaker/${caretakerId}/${serviceId}/review`}>
+        <button className="poppins bg-orange-500 text-white px-4 py-2 rounded mt-8">
+          Create Review
+        </button>
+      </Link>
     </div>
   );
 }
