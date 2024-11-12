@@ -22,12 +22,12 @@ interface Service {
 }
 
 interface Review {
-  service_id: number;
   rating: number;
   review_description: string;
   user_id: number;
   anonymous: boolean;
   reviewer_name?: string;
+  service: Service;
 }
 
 export default function EventDetails() {
@@ -78,6 +78,7 @@ export default function EventDetails() {
             const reviewsWithNames = await Promise.all(
               responseReview.data.map(async (review) => {
                 try {
+                  console.log('Review:', review);
                   const petownerResponse = await axios.get(
                     `http://localhost:8000/petowner/${review.user_id}`,
                     { headers: { 'Authorization': `Bearer ${token}` } }
@@ -158,9 +159,16 @@ export default function EventDetails() {
           reviews.map((review, index) => (
             <div key={index}>
               <div className="mt-4">
-                <p className="font-semibold">{review.anonymous ? 'Anonymous' : review.reviewer_name}</p>
-                <p>{review.review_description}</p>
-                <p>{'⭐'.repeat(review.rating)}</p>
+          <p className="font-semibold">
+            {review.anonymous ? 'Anonymous' : review.reviewer_name}
+          </p>
+          <p>{review.review_description}</p>
+          <p>{'⭐'.repeat(review.rating)}</p>
+          {review.user_id === parseInt(sessionStorage.getItem('user_id') || '0', 10) && (
+            <Link href={`/search/caretaker/${caretakerId}/${serviceId}/editReview`}>
+              <div className="text-blue-500">Edit Review</div>
+            </Link>
+          )}
               </div>
               {index < reviews.length - 1 && <hr className="my-4 border-gray-300" />}
             </div>
