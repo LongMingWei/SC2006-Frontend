@@ -119,8 +119,18 @@ interface Service {
   service_availability: DayOfWeek[];
   location: string[];
   caretaker: Caretaker;
+  review: Review[];
 }
 
+interface ServiceWithAverageRating {
+  service: Service;
+  averageRating: number;
+}
+
+interface Review {
+  service_id: number;
+  rating: number;
+}
 
 export default function Mapper() {
     useEffect(() => {
@@ -209,6 +219,8 @@ export default function Mapper() {
     const router = useRouter();
     const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
     const clusterer = useRef<MarkerClusterer | null>(null);
+
+    console.log(props.services);
   
     useEffect(() => {
       if (map && !clusterer.current) {
@@ -218,7 +230,9 @@ export default function Mapper() {
     const newMarkers: { [key: string]: Marker } = {};
       
   props.services.forEach((service) => {
-      console.log(service);
+      const reviews = service.review || []; // Ensure reviews is an array
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
     service.location.forEach((loc) => {      
       const serviceLocation = LocationCoordinates[loc.replace(/\s+/g, '')];
       console.log(serviceLocation);
@@ -238,7 +252,7 @@ export default function Mapper() {
                 <h3>${service.caretaker.name}</h3>
                 <br />
                 <p>Service: ${service.service}</p>
-                <p>⭐ ${service.service_rate}</p>
+                <p>⭐ ${service.review && service.review.length > 0 ? averageRating.toFixed(1) : 'No reviews yet'}</p>
                 <p>Rate: ${service.service_rate}</p>
                 <p>Availability: ${service.service_availability.join(', ')}</p>
                 <p>Location: ${loc}</p>

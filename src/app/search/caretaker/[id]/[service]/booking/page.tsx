@@ -21,16 +21,55 @@ interface Service {
   location: string[];
 }
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  created_at: string;
+}
+
+interface Pet {
+  pet_id: number;
+  pet_name: string;
+  pet_species: string;
+  pet_breed: string;
+  pet_age: number;
+  pet_health: string;
+  pet_preferences: string | null;
+  petowner: any;
+}
+
+interface PetOwner {
+  name: string;
+  dob: string;
+  gender: 'male' | 'female' | 'other';
+  location: string;
+  user: User;
+  pet: Pet[];
+}
+
+interface Timeslot {
+  location: string;
+  start_time: Date;
+  end_time: Date;
+}
+
 export default function BookingPage() {
   const [serviceBooking, setService] = useState<Service | null>(null);
+  const [ownerPets, setOwnerPets] = useState<Pet[]>([]);
+  const [selectedPet, setSelectedPet] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initialDate = new Date();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTimeslots, setSelectedTimeslots] = useState<Date[]>([]);
 
   const pathname = usePathname();
   const caretakerId = parseInt(pathname.split('/')[3] || '0', 10);
   const serviceId = parseInt(pathname.split('/')[4] || '0', 10);
 
   const token = sessionStorage.getItem('access_token');
+  const userId = sessionStorage.getItem('user_id');
 
   if (!token) {
     router.push('/signout/login');
@@ -48,6 +87,23 @@ export default function BookingPage() {
         });
 
         setService(response.data);
+
+        const responsePets = await axios.get<PetOwner>(`http://localhost:8000/petowner/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        setOwnerPets(responsePets.data.pet);
+
+        const responseCalendar = await axios.get<Timeslot[]>(`http://localhost:8000/calendar/${caretakerId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log(responseCalendar.data);
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching caretakers:', err);
@@ -64,6 +120,19 @@ export default function BookingPage() {
     return <div className="text-red-500 text-center p-4">Service not found</div>;
   }
 
+  /* useEffect(() => {
+    if (serviceBooking) {
+      const updateSelectedDate = () => {
+        const [hours, minutes] = serviceBooking.service_availability[0].split(':').map(Number);
+        const newDate = new Date(initialDate);
+        newDate.setHours(hours, minutes, 0, 0);
+        setSelectedDate(newDate);
+      };
+
+      updateSelectedDate();
+    }
+  }, [serviceBooking, initialDate]); */
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -76,14 +145,6 @@ export default function BookingPage() {
     return <div className="text-red-500 text-center p-4">{error}</div>;
   }
 
-  const [selectedPet, setSelectedPet] = useState('');
-  const initialDate = new Date();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
-    const [hours, minutes] = serviceBooking.service_availability[0].split(':').map(Number);
-    initialDate.setHours(hours, minutes, 0, 0);
-    return initialDate;
-  });
-  const [selectedTimeslots, setSelectedTimeslots] = useState<Date[]>([]);
 
   const handlePetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPet(event.target.value);
@@ -99,12 +160,16 @@ export default function BookingPage() {
     setSelectedTimeslots(prev => prev.filter((_, i) => i !== index));
   };
 
-  /* const filterTimes = (time: Date) => {
-    const timeString = time.toTimeString().slice(0, 5);
-    return serviceBooking.service_availability.includes(timeString);
+  const filterTimes = (time: Date) => {
+    const dayOfWeek = time.toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek;
+    return serviceBooking.service_availability.includes(dayOfWeek);
+  };
+  const filterDates = (date: Date) => {
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek;
+    return serviceBooking.service_availability.includes(dayOfWeek);
   };
 
-  const handleSaveAndProceedToPayment = () => {
+  /* const handleSaveAndProceedToPayment = () => {
     const dataToSave = {
       caretakerName: caretaker.name,
       serviceType: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
@@ -114,7 +179,7 @@ export default function BookingPage() {
     };
   
     localStorage.setItem('bookingData', JSON.stringify(dataToSave));
-  }; */
+  };  */
 
   return (
     <div className="flex justify-center items-center min-h-screen">
@@ -131,7 +196,8 @@ export default function BookingPage() {
         <div className="mb-4 poppins">
           <p><strong>Service:</strong> {serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1)}</p>
           <p><strong>Rates:</strong> {serviceBooking.service_rate}</p>
-          <p><strong>Location:</strong> {serviceBooking.location}</p>
+          <p><strong>Availability:</strong> {serviceBooking.service_availability.join(', ')}</p>
+          <p><strong>Location:</strong> {serviceBooking.location.join(', ')}</p>
         </div>
         <div className="mb-4 poppins">
           <label htmlFor="pet" className="block text-lg font-medium text-gray-700">Choose Pet</label>
@@ -143,9 +209,9 @@ export default function BookingPage() {
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
           >
             <option value="">Select a pet</option>
-            <option value="Pet 1">Pet 1</option>
-            <option value="Pet 2">Pet 2</option>
-            <option value="Pet 3">Pet 3</option>
+            {ownerPets.map(pet => (
+              <option key={pet.pet_id} value={pet.pet_name}>{pet.pet_name}</option>
+            ))}
           </select>
         </div>
         <div className="mb-8 poppins">
@@ -155,7 +221,8 @@ export default function BookingPage() {
               selected={selectedDate}
               onChange={(date) => setSelectedDate(date)}
               showTimeSelect
-              // filterTime={filterTimes}
+              filterTime={filterTimes}
+              filterDate={filterDates}
               dateFormat="Pp"
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             />

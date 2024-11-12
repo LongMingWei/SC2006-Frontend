@@ -62,9 +62,10 @@ const TabbedMenu = () => {
     };
   }, [pathname]);
 
+  const profileType = Number(sessionStorage.getItem('profile_type'));
   const tabs = [
     { href: '/homepage', icon: faHome, label: 'Home' },
-    { href: '/search', icon: faSearch, label: 'Search' },
+    ...(profileType !== 2 ? [{ href: '/search', icon: faSearch, label: 'Search' }] : []),
     { href: '/messages', icon: faComment, label: 'Chat' },
     { href: profilePath, icon: faUser, label: 'Profile' },
   ];
