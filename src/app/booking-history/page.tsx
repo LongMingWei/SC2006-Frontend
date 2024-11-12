@@ -111,10 +111,10 @@ const BookingHistoryPage = () => {
         >
           ←
         </Link>
-        <h1 className="text-2xl font-bold">Booking History</h1>
+        <h1 className="jua text-2xl font-bold">Booking History</h1>
       </div>
 
-      <div className="space-y-4">
+      <div className="poppins space-y-4">
         {bookings.length > 0 ? (
           bookings.map((booking, index) => (
             <div key={index} className="bg-orange-50 rounded-lg p-4 shadow-md">
