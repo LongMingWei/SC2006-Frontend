@@ -130,7 +130,12 @@ interface ServiceWithAverageRating {
 interface Review {
   service_id: number;
   rating: number;
+  review_description: string;
+  user_id: number;
+  anonymous: boolean;
 }
+
+const token = sessionStorage.getItem('access_token');
 
 export default function Mapper() {
     useEffect(() => {
@@ -139,13 +144,13 @@ export default function Mapper() {
 
     const [caretakers, setCaretakers] = useState<Caretaker[]>([]);
     const [services, setServices] = useState<Service[]>([]);
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
       const fetchCaretakers = async () => {
-        const token = sessionStorage.getItem('access_token');
         
         if (!token) {
           router.push('/signout/login');
@@ -183,6 +188,39 @@ export default function Mapper() {
       fetchCaretakers();
     }, [router]);
 
+    useEffect(() => {
+      if (!token || !services.length) return;
+  
+      const fetchReviews = async () => {
+        try {
+          const reviewsData = await Promise.all(
+            services.map(async service => {
+              try {
+                const response = await axios.get<Review[]>(
+                  `http://localhost:8000/review/${service.service_id}`,
+                  {
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    }
+                  }
+                );
+                return response.data || [];
+              } catch (err) {
+                console.error(`Error fetching reviews for service ${service.service_id}:`, err);
+                return [];
+              }
+            })
+          );
+          setReviews(reviewsData.flat());
+        } catch (err) {
+          console.error('Error fetching reviews:', err);
+          setReviews([]);
+        }
+      };
+  
+      fetchReviews();
+    }, [services, token]);
+
     if (loading) {
       return (
         <div className="flex justify-center items-center min-h-screen">
@@ -194,6 +232,16 @@ export default function Mapper() {
     if (error) {
       return <div className="text-red-500 text-center p-4">{error}</div>;
     }
+
+    const servicesWithAverageRating: ServiceWithAverageRating[] = services.map(service => {
+      const serviceReviews = reviews.filter(review => review.service_id === service.service_id);
+      const totalRating = serviceReviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = serviceReviews.length > 0 ? totalRating / serviceReviews.length : 0;
+      return {
+        service: service,
+        averageRating: averageRating || 0
+      };
+    });
   
     return (
       <><Link href="/search">
@@ -208,13 +256,13 @@ export default function Mapper() {
             mapId='da37f3254c6a6d1c'
             style={{ width: '100%', height: '100vh' }}
           >
-            <CaretakerMarkers caretakers={caretakers} services={services} />
+            <CaretakerMarkers caretakers={caretakers} services={services} servicesWithAverageRating={servicesWithAverageRating} />
           </Map>
         </APIProvider></>
     );
   }
   
-  const CaretakerMarkers = (props: { caretakers: Caretaker[] ; services: Service[]}) => {
+  const CaretakerMarkers = (props: { caretakers: Caretaker[] ; services: Service[] ; servicesWithAverageRating: ServiceWithAverageRating[] }) => {
     const map = useMap();
     const router = useRouter();
     const [markers, setMarkers] = useState<{ [key: string]: Marker }>({});
@@ -230,9 +278,9 @@ export default function Mapper() {
     const newMarkers: { [key: string]: Marker } = {};
       
   props.services.forEach((service) => {
-      const reviews = service.review || []; // Ensure reviews is an array
-      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-      const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+    const serviceRating = props.servicesWithAverageRating.find(
+      s => s.service.service_id === service.service_id
+    )?.averageRating || 0;
     service.location.forEach((loc) => {      
       const serviceLocation = LocationCoordinates[loc.replace(/\s+/g, '')];
       console.log(serviceLocation);
@@ -252,7 +300,7 @@ export default function Mapper() {
                 <h3>${service.caretaker.name}</h3>
                 <br />
                 <p>Service: ${service.service}</p>
-                <p>⭐ ${service.review && service.review.length > 0 ? averageRating.toFixed(1) : 'No reviews yet'}</p>
+                <p>⭐ ${ serviceRating }</p>
                 <p>Rate: ${service.service_rate}</p>
                 <p>Availability: ${service.service_availability.join(', ')}</p>
                 <p>Location: ${loc}</p>
