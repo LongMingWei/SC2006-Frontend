@@ -180,7 +180,7 @@ const CaretakerProfile = () => {
                 onClick={handleSubmit}
                 disabled={!!errorMessage || !isFormValid}
             >
-                Save
+                Submit
             </button>
 
             {/* Decorative Image */}

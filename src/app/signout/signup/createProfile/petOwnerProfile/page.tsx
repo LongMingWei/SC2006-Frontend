@@ -103,6 +103,8 @@ const CaretakerProfileNew = () => {
     const [nameError, setNameError] = useState('');
     const [genderError, setGenderError] = useState('');
     const [locationError, setLocationError] = useState('');
+    const [errorMessage, setErrorMessage] = useState<string>('');
+
 
     useEffect(() => {
         const requiredFieldsFilled =
@@ -111,8 +113,8 @@ const CaretakerProfileNew = () => {
             formData.gender.trim() !== '' &&
             formData.location.trim() !== '';
 
-        setIsFormValid(requiredFieldsFilled);
-    }, [formData]);
+            setIsFormValid(requiredFieldsFilled && !errorMessage && !nameError);
+        }, [formData]);
 
     const handleInputChange = (key: string, value: string) => {
         setFormData({ ...formData, [key]: value });
@@ -256,9 +258,9 @@ const CaretakerProfileNew = () => {
                 {/* Submit Button */}
                 <div className="flex justify-center mt-6">
                     <button
-                        className="w-full py-3 bg-orange-500 text-white text-lg font-bold rounded"
+                        className={`poppins py-2 px-4 rounded mt-4 ${isFormValid ? 'bg-orange-500 text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
                         onClick={handleSubmit}
-                        disabled={!isFormValid}
+                        disabled={!!errorMessage || !isFormValid}
                     >
                         Submit
                     </button>
