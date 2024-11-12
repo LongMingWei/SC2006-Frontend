@@ -194,9 +194,6 @@ const EditPetProfile: React.FC = () => {
             className="rounded-full border-2 border-[#FF6B3D]"
           />
         </div>
-        <Link href="/edit-pet-picture" className="text-blue-500">
-          Edit pet picture
-        </Link>
       </div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
