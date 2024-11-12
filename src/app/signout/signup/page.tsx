@@ -49,23 +49,23 @@ const Register = () => {
     const passwordRequirements = [
       {
         regex: /.{10,20}/,
-        message: 'Password must be between 10 and 20 characters',
+        message: 'Password does not meet the requirements',
       },
       {
         regex: /[!@#$%^&*(),.?":{}|<>]/,
-        message: 'Password must contain at least one special character',
+        message: 'Password does not meet the requirements',
       },
       {
         regex: /[A-Z]/,
-        message: 'Password must include at least one uppercase letter',
+        message: 'Password does not meet the requirements',
       },
       {
         regex: /[a-z]/,
-        message: 'Password must include at least one lowercase letter',
+        message: 'Password does not meet the requirements',
       },
       {
         regex: /[0-9]/,
-        message: 'Password must include at least one number',
+        message: 'Password does not meet the requirements',
       },
     ];
 
