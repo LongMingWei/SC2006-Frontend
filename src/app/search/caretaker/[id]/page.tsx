@@ -84,6 +84,9 @@ export default function CaretakerPage() {
     fetchCaretaker();
   }, [caretakerId, token, router]);
 
+  console.log('Caretaker:', caretaker);
+  console.log('Services:', services);
+
   useEffect(() => {
     if (!token || !services.length) return;
 
@@ -116,6 +119,8 @@ export default function CaretakerPage() {
 
     fetchReviews();
   }, [services, token]);
+
+  console.log('Reviews:', reviews);
 
   if (loading) {
     return (
