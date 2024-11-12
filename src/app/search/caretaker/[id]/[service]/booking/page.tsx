@@ -214,20 +214,20 @@ export default function BookingPage() {
   };  
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <div className="min-h-screen bg-white flex justify-center">
       <div className="p-8 w-full max-w-lg">
-        <div className="flex items-center mb-8">
-          <Image src='/dog.png' alt={serviceBooking.service} width={180} height={180} className="rounded-full mr-4" />
-          <div className="ml-4">
-            <h1 className="jua text-3xl font-bold">{serviceBooking.service}</h1>
+        <div className="flex flex-col mb-8">
+          <div className="flex items-center">
             <Link href={`/search/caretaker/${caretakerId}/${serviceId}`}>
-              <div className="poppins text-orange-500 text-xl mb-4">← Back</div>
+              <div className="poppins text-orange-500 text-2xl mr-4">←</div>
             </Link>
+            <Image src='/dog.png' alt={serviceBooking.service} width={80} height={80} className="rounded-full mr-4" />
+            <h1 className="jua text-3xl font-bold">{serviceBooking.service}</h1>
           </div>
         </div>
         <div className="mb-4 poppins">
           <p><strong>Service:</strong> {serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1)}</p>
-          <p><strong>Rates:</strong> {serviceBooking.service_rate}</p>
+          <p><strong>Rates: $</strong>{serviceBooking.service_rate}</p>
           <p><strong>Availability:</strong> {serviceBooking.service_availability.join(', ')}</p>
         </div>
         <form onSubmit={handleSaveAndProceedToPayment}>
@@ -263,20 +263,22 @@ export default function BookingPage() {
         </div>
         <div className="mb-8 poppins">
           <label htmlFor="date" className="block text-lg font-medium text-gray-700">Choose Date and Time</label>
-          <div className="flex items-center">
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date) => setSelectedDate(date)}
-              showTimeSelect
-              filterTime={filterTimes}
-              filterDate={filterDates}
-              dateFormat="Pp"
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            />
+          <div className="flex items-center space-x-4">
+            <div className="flex-1 border rounded-lg p-2 bg-white">
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                showTimeSelect
+                filterTime={filterTimes}
+                filterDate={filterDates}
+                dateFormat="Pp"
+                className="w-full pl-3 pr-10 py-2 text-base focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+              />
+            </div>
             <button
               type="button" 
               onClick={() => handleDateChange(selectedDate)}
-              className="ml-16 bg-orange-500 text-white px-4 py-2 rounded"
+              className="bg-orange-500 text-white px-4 py-3 rounded-lg hover:bg-orange-600 transition-colors"
             >
               Add Timeslot
             </button>
