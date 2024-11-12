@@ -30,7 +30,7 @@ const BookingHistoryPage = () => {
       const profileType = sessionStorage.getItem('profile_type');
 
       if (!token || !userId) {
-        router.push('/login');
+        router.push('/signout/login');
         return;
       }
 
@@ -53,7 +53,7 @@ const BookingHistoryPage = () => {
         console.error('Error fetching booking history:', err);
         if (axios.isAxiosError(err) && err.response?.status === 401) {
           sessionStorage.clear();
-          router.push('/login');
+          router.push('/signout/login');
         }
         setError('Failed to load booking history');
         setLoading(false);

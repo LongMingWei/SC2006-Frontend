@@ -3,42 +3,161 @@
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { format } from 'date-fns';
 
-const events = [
-  {
-    id: 1,
-    name: 'Event 1',
-    date: '2023-10-01',
-    location: 'Location 1',
-    time: '10:00 AM',
-    avatarUrl: '/dog.png',
-  },
-  {
-    id: 2,
-    name: 'Event 2',
-    date: '2023-10-02',
-    location: 'Location 2',
-    time: '11:00 AM',
-    avatarUrl: '/dog.png',
-  },
-  {
-    id: 3,
-    name: 'Event 3',
-    date: '2023-10-03',
-    location: 'Location 3',
-    time: '12:00 PM',
-    avatarUrl: '/dog.png',
-  },
-];
+interface BookingEvent {
+  start: string;
+  end: string;
+  location: string;
+  description: string;
+  summary: string;
+}
+
+const token = sessionStorage.getItem('access_token');
+const userId = sessionStorage.getItem('user_id');
+const profileType = sessionStorage.getItem('profile_type');
 
 export default function EventDetails() {
   const pathname = usePathname();
   const id = pathname.split('/').pop();
-  const event = events.find(event => event.id === parseInt(id as string));
 
-  if (!event) {
-    return <p>Event not found</p>;
+  const [booking, setBooking] = useState<BookingEvent | null>(null);
+  const [caretakerName, setCaretakerName] = useState<string | null>(null);
+  const [petName, setPetName] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [userType, setUserType] = useState<'petowner' | 'caretaker' | null>(null);
+  const router = useRouter();
+
+  // Fetch booking history
+  useEffect(() => {
+    const fetchBookingHistory = async () => {
+      if (!token || !userId) {
+        router.push('/signout/login');
+        return;
+      }
+
+      setUserType(profileType === '2' ? 'caretaker' : 'petowner');
+
+      try {
+        const response = await axios.get<{ events: BookingEvent[] }>(
+          `http://localhost:8000/calendar`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        setBooking(response.data.events.find(event => event.start === id) || null);
+      } catch (err) {
+        console.error('Error fetching booking history:', err);
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          sessionStorage.clear();
+          router.push('/signout/login');
+        }
+        setError('Failed to load booking history');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookingHistory();
+  }, [router, id]);
+
+  // Parse IDs from booking description
+  const description = booking?.description || "";
+  const regex = /Petowner ID: (\d+), Caretaker ID: (\d+), Pet ID: (\d+), Service ID: (\d+)/;
+  const matches = description.match(regex);
+
+  const petownerId = matches ? matches[1] : null;
+  const caretakerId = matches ? matches[2] : null;
+  const petId = matches ? matches[3] : null;
+  const serviceId = matches ? matches[4] : null;
+
+  // Fetch details for caretaker and pet once booking is available
+  useEffect(() => {
+    const fetchBookingDetails = async () => {
+      if (!petownerId || !petId) return;
+
+      try {
+        const caretakerResponse = await axios.get(
+          `http://localhost:8000/caretaker`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        console.log(caretakerResponse.data);
+        setCaretakerName(caretakerResponse.data[0]?.name || null);
+
+        const petResponse = await axios.get(
+          `http://localhost:8000/pet/${petownerId}/${petId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        console.log(petResponse.data);
+        setPetName(petResponse.data?.pet_name || null);
+
+      } catch (err) {
+        console.error('Error fetching booking details:', err);
+        setError('Failed to load booking details');
+      }
+    };
+
+    fetchBookingDetails();
+  }, [router, petownerId, petId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B3D]"></div>
+      </div>
+    );
   }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-500">Booking not found</div>
+      </div>
+    );
+  }
+
+  const handleCancelBooking = async () => {
+    try {
+      const response = await axios.delete(`http://localhost:8000/calendar/${caretakerId}/${serviceId}/${petId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      router.push('/homepage');
+
+    } catch (err) {
+      console.error('Error canceling booking:', err);
+      setError('Failed to cancel booking');
+    }
+  };
+
+  const handleEditBooking = async () => {
+    sessionStorage.setItem('editBookingPet', JSON.stringify({ petId, petName, start: booking?.start, location: booking?.location }));
+    router.push(`/search/caretaker/${caretakerId}/${serviceId}/editBooking`);
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen">
@@ -51,21 +170,22 @@ export default function EventDetails() {
         </div>
         <div className="flex items-center justify-center poppins mb-8">
           <Image
-            src={event.avatarUrl}
-            alt={event.name}
+            src="/dog.png"
+            alt={booking.summary}
             width={128}
             height={128}
             className="rounded-full mr-4"
           />
-          <h1 className="text-3xl font-bold">{event.name}</h1>
+          <h1 className="text-3xl font-bold">{booking.summary}</h1>
         </div>
         <div className="flex flex-col items-center poppins">
-          <p className="text-gray-600 mb-2">Date: {event.date}</p>
-          <p className="text-gray-600 mb-2">Location: {event.location}</p>
-          <p className="text-gray-600 mb-8">Time: {event.time}</p>
+          <p className="text-gray-600 mb-2">Caretaker: {caretakerName || caretakerId}</p>
+          <p className="text-gray-600 mb-2">Pet: {petName || petId}</p>
+          <p className="text-gray-600 mb-2">Date: {format(new Date(booking.start), 'Pp')} - {format(new Date(booking.end), 'Pp')}</p>
+          <p className="text-gray-600 mb-2">Location: {booking.location}</p>
           <div className="flex gap-4">
-            <button className="bg-orange-500 text-white px-4 py-2 rounded">Change Time</button>
-            <button className="bg-orange-500 text-white px-4 py-2 rounded">Cancel Booking</button>
+            <button onClick={handleEditBooking} className="bg-orange-500 text-white px-4 py-2 rounded">Change Time</button>
+            <button onClick={handleCancelBooking} className="bg-orange-500 text-white px-4 py-2 rounded">Cancel Booking</button>
           </div>
         </div>
       </div>
