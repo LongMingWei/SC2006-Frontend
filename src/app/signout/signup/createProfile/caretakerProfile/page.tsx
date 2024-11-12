@@ -144,7 +144,7 @@ const CaretakerProfile = () => {
                 </div>
 
                 <div className="mb-4">
-                    <label className="block text-lg font-bold mb-2">Gender</label>
+                    <label className="block text-lg font-bold mb-2">Gender<span className="text-red-500">*</span></label>
                     <select
                         className="w-full p-2 border border-orange-500 rounded"
                         value={formData.gender}

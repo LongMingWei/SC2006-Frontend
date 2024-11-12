@@ -265,6 +265,13 @@ const CaretakerProfileNew = () => {
                         Submit
                     </button>
                 </div>
+                {/* Add Pet Section */}
+                <div className="flex flex-col items-center mt-10">
+                    <Link href="/signout/signup/createProfile/petOwnerProfile/addPet" className="flex items-center justify-center w-16 h-16 rounded-full">                    
+                    <Image src="/addIcon.png" alt="White Puppy" width={160} height={160} className="my-5" />
+                    </Link>
+                    <p className="poppins text-lg text-gray-500 mt-2">Start adding your pets!</p>
+                </div>
             </div>
         </div>
     );
