@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -45,8 +45,6 @@ const PaymentHistoryPage = () => {
       const userId = sessionStorage.getItem('user_id');
       const profileType = sessionStorage.getItem('profile_type');
 
-      console.log('Session info:', { userId, profileType });
-
       if (!token || !userId) {
         router.push('/login');
         return;
@@ -59,20 +57,11 @@ const PaymentHistoryPage = () => {
           ? `http://localhost:8000/payment/${userId}`
           : `http://localhost:8000/payment/petowner/${userId}`;
 
-        const response = await axios.get<Payment>(
-          endpoint,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
+        const response = await axios.get<Payment[]>(endpoint, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-        console.log('Payment response:', response.data);
-
-        if (response.data) {
-          const payment = response.data;
-          
+        const paymentDetailsPromises = response.data.map(async (payment) => {
           try {
             const serviceResponse = await axios.get<Service>(
               `http://localhost:8000/service/${payment.receiver}/${payment.service_id}`, 
@@ -81,31 +70,19 @@ const PaymentHistoryPage = () => {
               }
             );
 
-            // Try caretaker route for user info if that's the other party
             const otherUserId = profileType === '2' ? payment.sender : payment.receiver;
-            console.log('Fetching user:', otherUserId);
-            
             let userResponse;
+
             try {
-              // Try petowner endpoint first if we're a caretaker
-              if (profileType === '2') {
-                userResponse = await axios.get<User>(
-                  `http://localhost:8000/petowner/${otherUserId}`,
-                  {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                  }
-                );
-              } else {
-                // Try caretaker endpoint if we're a petowner
-                userResponse = await axios.get<User>(
-                  `http://localhost:8000/caretaker/${otherUserId}`,
-                  {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                  }
-                );
-              }
-            } catch (userErr) {
-              // Fallback to general users endpoint if specific endpoints fail
+              userResponse = await axios.get<User>(
+                profileType === '2'
+                  ? `http://localhost:8000/petowner/${otherUserId}`
+                  : `http://localhost:8000/caretaker/${otherUserId}`,
+                {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                }
+              );
+            } catch {
               userResponse = await axios.get<User>(
                 `http://localhost:8000/users/${otherUserId}`,
                 {
@@ -114,39 +91,32 @@ const PaymentHistoryPage = () => {
               );
             }
 
-            console.log('User response:', userResponse.data);
-
-            const paymentWithDetails = {
+            return {
               ...payment,
               service: serviceResponse.data.service,
               other_user_name: userResponse.data.name
             };
-
-            setPayments([paymentWithDetails]);
-          } catch (detailsErr) {
-            console.error('Error fetching details:', detailsErr);
-            setPayments([{
+          } catch {
+            return {
               ...payment,
               service: 'Unknown Service',
               other_user_name: 'Unknown User'
-            }]);
+            };
           }
-        }
+        });
+
+        const paymentsWithDetails = await Promise.all(paymentDetailsPromises);
+        setPayments(paymentsWithDetails);
         setLoading(false);
 
       } catch (err) {
         console.error('Error fetching payment history:', err);
         if (axios.isAxiosError(err)) {
-          console.error('Error response:', err.response?.data);
           if (err.response?.status === 404) {
             setPayments([]);
-            setLoading(false);
-            return;
-          }
-          if (err.response?.status === 401) {
+          } else if (err.response?.status === 401) {
             sessionStorage.clear();
             router.push('/login');
-            return;
           }
         }
         setError('Failed to load payment history');
@@ -156,7 +126,6 @@ const PaymentHistoryPage = () => {
 
     fetchPaymentHistory();
   }, [router]);
-
 
   const formatDateTime = (dateTimeStr: string) => {
     const date = new Date(dateTimeStr);
@@ -192,7 +161,7 @@ const PaymentHistoryPage = () => {
 
       <div className="space-y-4">
         {payments.length > 0 ? (
-          payments.map((payment) => (
+          payments.slice().reverse().map((payment) =>(
             <div key={payment.payment_id} className="bg-orange-50 rounded-2xl p-4">
               <div className="flex items-start space-x-4">
                 <Image
