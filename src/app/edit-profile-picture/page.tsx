@@ -61,7 +61,7 @@ const EditProfilePicture = () => {
         return;
       }
 
-      // Validate file size (e.g., max 5MB)
+      // Validate file size
       if (file.size > 5 * 1024 * 1024) {
         setError('File size should be less than 5MB');
         return;
@@ -131,7 +131,6 @@ const EditProfilePicture = () => {
   
       <div className="max-w-md mx-auto">
         <div className="flex flex-col items-center space-y-6">
-          {/* Current/Preview Image */}
           <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-orange-500">
             <Image
               src={previewUrl || currentPicture}
@@ -141,7 +140,6 @@ const EditProfilePicture = () => {
             />
           </div>
   
-          {/* Hidden file input */}
           <input
             type="file"
             ref={fileInputRef}
@@ -150,7 +148,6 @@ const EditProfilePicture = () => {
             className="hidden"
           />
   
-          {/* Custom button to trigger file input */}
           <button
             onClick={triggerFileInput}
             className="bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
@@ -163,7 +160,6 @@ const EditProfilePicture = () => {
             <p className="text-red-500 text-center">{error}</p>
           )}
   
-          {/* Upload button */}
           <button
             onClick={handleUpload}
             disabled={!selectedFile || loading}

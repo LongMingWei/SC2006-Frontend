@@ -6,7 +6,6 @@ import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-// Interface for form data
 interface ProfileFormData {
   name: string;
   dob: string;
@@ -14,7 +13,6 @@ interface ProfileFormData {
   work_exp: number;
 }
 
-// Interface for API response
 interface ProfileResponse {
   name: string;
   dob: string;
@@ -152,7 +150,7 @@ const EditProfile: React.FC = () => {
       }
     }
 
-    setFormValid(isFormValid); // Update form validity
+    setFormValid(isFormValid);
   };
 
   const today = new Date();

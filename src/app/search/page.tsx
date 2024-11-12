@@ -121,7 +121,7 @@ export default function UpcomingEvents() {
                 <p className="poppins text-gray-600">{`Services: ${services.filter(s => s.caretaker.user.id === caretaker.user_id)?.length ? services.filter(s => s.caretaker.user.id === caretaker.user_id).map(s => s.service).join(', ') : 'No services available'}`}</p>
                 </div>
             </div>
-            <div className="border-t-4 border-orange-500"></div>
+            <div className="border-t-3 border-orange-500"></div>
             </div>
         </Link>
         ))}
