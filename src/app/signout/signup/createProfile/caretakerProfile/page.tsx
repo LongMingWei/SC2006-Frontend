@@ -18,10 +18,10 @@ const CaretakerProfile = () => {
         gender: '',
         experience: '',
     });
-    const router = useRouter();
     const [isFormValid, setIsFormValid] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [nameError, setNameError] = useState('');
+    const router = useRouter();
 
     useEffect(() => {
         const requiredFieldsFilled =
@@ -29,28 +29,29 @@ const CaretakerProfile = () => {
             formData.dob.trim() !== '' &&
             formData.gender.trim() !== '' &&
             formData.experience.trim() !== '';
-        setIsFormValid(requiredFieldsFilled);
-    }, [formData]);
+        setIsFormValid(requiredFieldsFilled && !errorMessage && !nameError);
+    }, [formData, errorMessage, nameError]);
 
     const handleInputChange = (key: string, value: string) => {
-        setFormData({ ...formData, [key]: value });
+        setFormData((prevData) => ({ ...prevData, [key]: value }));
 
-        // Check name validity here for each change
         if (key === 'name') {
-            if (value.trim().length < 3 || value.trim().length > 30) {
-                setNameError('Name must be between 3 and 30 characters.');
-            } else {
-                setNameError('');
-            }
+            setNameError(value.trim().length < 3 || value.trim().length > 30
+                ? 'Name must be between 3 and 30 characters.'
+                : ''
+            );
         }
+
         if (key === 'experience') {
-            // Validate work experience (it should not be greater than the age)
+            const workExp = parseFloat(value);
             const age = getAge(formData.dob);
-            if (parseFloat(value) > age) {
-                setErrorMessage('Work experience cannot be greater than your age');
-            } else {
-                setErrorMessage('');
-            }
+            setErrorMessage(
+                isNaN(workExp) || workExp < 0
+                    ? 'Work experience must be a positive number.'
+                    : workExp > age
+                    ? 'Work experience cannot be greater than your age.'
+                    : ''
+            );
         }
     };
 
@@ -58,19 +59,19 @@ const CaretakerProfile = () => {
         const today = new Date();
         const birthDate = new Date(dob);
         let age = today.getFullYear() - birthDate.getFullYear();
-        const month = today.getMonth();
-        if (month < birthDate.getMonth() || (month === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+        const month = today.getMonth() - birthDate.getMonth();
+        if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
         return age;
     };
 
     const today = new Date();
-    today.setFullYear(today.getFullYear() - 16); // Subtract 16 years
-    const maxDate = today.toISOString().split('T')[0]; // Format as 'YYYY-MM-DD'
+    today.setFullYear(today.getFullYear() - 16);
+    const maxDate = today.toISOString().split('T')[0];
 
     const handleSubmit = async () => {
-        if (isFormValid && !errorMessage && !nameError) {
+        if (isFormValid) {
             try {
                 const accessToken = sessionStorage.getItem('access_token');
                 const userId = sessionStorage.getItem('user_id');
@@ -95,11 +96,12 @@ const CaretakerProfile = () => {
                 }
 
                 alert('Profile saved successfully!');
+                router.push('/profile');
             } catch (error) {
                 alert((error as Error).message);
             }
         } else {
-            alert('Please fill out all required fields and ensure work experience is valid.');
+            alert('Please fill out all required fields and fix errors before submitting.');
         }
     };
 
@@ -111,9 +113,12 @@ const CaretakerProfile = () => {
                     <Image src="/back_arrow.png" alt="Back to homepage" width={24} height={24} />
                 </Link>
             </div>
+
+            {/* Titles */}
             <h2 className="jua text-4xl font-bold text-black text-center my-4">Create Profile</h2>
             <h3 className="jua text-2xl font-bold text-orange-500 text-center mb-5">Caretaker</h3>
 
+            {/* Form Section */}
             <div className="poppins w-full max-w-md">
                 <div className="mb-4">
                     <label className="block text-lg font-bold mb-2">Name<span className="text-red-500">*</span></label>
@@ -169,16 +174,19 @@ const CaretakerProfile = () => {
                 </div>
             </div>
 
+            {/* Save Button */}
             <button
-                className="poppins bg-orange-500 text-white py-2 px-4 rounded mt-4"
+                className={`poppins py-2 px-4 rounded mt-4 ${isFormValid ? 'bg-orange-500 text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
                 onClick={handleSubmit}
                 disabled={!!errorMessage || !isFormValid}
             >
                 Save
             </button>
 
+            {/* Decorative Image */}
             <Image src="/line1.png" alt="White Puppy" width={160} height={180} className="my-5" />
 
+            {/* Add Service Button */}
             <div className="flex flex-col items-center mt-10">
                 <Link href="/signout/signup/createProfile/caretakerProfile/addService" className="flex items-center justify-center w-16 h-16 rounded-full">
                     <Image src="/addIcon.png" alt="White Puppy" width={160} height={160} className="my-5" />
@@ -186,7 +194,6 @@ const CaretakerProfile = () => {
                 <p className="poppins text-lg text-gray-500 mt-2">Start adding your services!</p>
             </div>
         </div>
-
     );
 };
 
