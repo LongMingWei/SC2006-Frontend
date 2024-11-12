@@ -99,10 +99,15 @@ const Register = () => {
 
       // Handle failed response
       if (!response.ok) {
+        
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to register. Please try again.');
+        if (response.status === 409) { 
+          alert(errorData.detail); // Display error detail returned from backend
+        } else {
+          throw new Error(errorData.detail || 'Failed to register. Please try again.');
+        }
       }
-
+        
       // Handle successful registration
       const data = await response.json();
       console.log('User registered:', data);
