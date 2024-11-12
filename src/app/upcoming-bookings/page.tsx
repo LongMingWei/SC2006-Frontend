@@ -97,7 +97,6 @@ export default function UpcomingBookings() {
                 />
                 <div className="ml-4">
                   <h2 className="text-xl font-semibold">{event.summary}</h2>
-                  <h2 className="text-xl font-semibold">{event.description}</h2>
                   <p className="text-gray-600">{format(new Date(event.start), 'Pp')} - {format(new Date(event.end), 'Pp')}</p>
                   <p className="text-gray-600">{event.location}</p>
                 </div>
