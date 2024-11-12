@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,13 +34,16 @@ interface Service {
 }
 
 interface ServiceWithAverageRating {
-  service: Service;
+  service_id: number;
   averageRating: number;
 }
 
 interface Review {
   service_id: number;
   rating: number;
+  review_description: string;
+  user_id: number;
+  anonymous: boolean;
 }
 
 export default function CaretakerPage() {
@@ -73,8 +76,6 @@ export default function CaretakerPage() {
 
         setCaretaker(response.data);
         setServices(response.data.service || []);
-        const allReviews = response.data.service.flatMap(service => service.review || []);
-        setReviews(allReviews);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching caretakers:', err);
@@ -87,6 +88,29 @@ export default function CaretakerPage() {
 
     fetchCaretaker();
   }, []);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const reviewsData = await Promise.all(
+          services.map(async service => {
+            const response = await axios.get<Review[]>(`http://localhost:8000/review/${service.service_id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            return response.data;
+          })
+        );
+        setReviews(reviewsData.flat());
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        setError('Failed to load reviews');
+      }
+    };
+
+    fetchReviews();
+  }, [services]);
 
   if (caretaker === null) {
     return <div className="text-red-500 text-center p-4">Caretaker not found</div>;
@@ -105,14 +129,14 @@ export default function CaretakerPage() {
   }
 
   const servicesWithAverageRating: ServiceWithAverageRating[] = services.map(service => {
-    const reviews = service.review || []; // Ensure reviews is an array
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
-    return {
-      service,
-      averageRating
-    };
+    console.log(service);
+    console.log(reviews)
+    const serviceReviews = reviews.filter(review => review.service_id === service.service_id);
+    const averageRating = serviceReviews.length > 0 ? serviceReviews.reduce((sum, review) => sum + review.rating, 0) / serviceReviews.length : 0;
+    return { service_id: service.service_id, averageRating };
   });
+
+  console.log(servicesWithAverageRating);
 
   return (
     <div className="p-8 justify-center items-center min-h-screen">
@@ -130,8 +154,6 @@ export default function CaretakerPage() {
             className="ml-auto flex items-center justify-center bg-orange-500 text-white px-4 py-2 rounded">
             <FontAwesomeIcon icon={faComment} className="mr-2"/> Chat
           </button>
-
-          {/* <p className="poppins text-lg">{'⭐'.repeat(Math.round(servicesWithAverageRating.averageRating))} ({averageRating.toFixed(1)})</p> */}
         </div>
       </div>
       <div className="mt-4 poppins">
@@ -147,8 +169,8 @@ export default function CaretakerPage() {
             <div key={index} className="bg-white text-black flex flex-col items-center justify-center rounded-lg shadow-lg p-4">
               <Image src='/dog.png' alt={service.service} width={50} height={50} className="rounded-lg" />
               <div className="text-center mt-2">
-              <p className="jua">{service.service}</p>
-              <p className="poppins text-lg">{'⭐'.repeat(Math.round(servicesWithAverageRating.find(s => s.service.service_id === service.service_id)?.averageRating || 0))} ({(servicesWithAverageRating.find(s => s.service.service_id === service.service_id)?.averageRating || 0).toFixed(1)})</p>
+              <p className="jua text-xl">{service.service}</p>
+              <p className="poppins text-lg">{'⭐'.repeat(Math.round(servicesWithAverageRating.reduce((sum, s) => sum + s.averageRating, 0) / servicesWithAverageRating.length))} ({(servicesWithAverageRating.reduce((sum, s) => sum + s.averageRating, 0) / servicesWithAverageRating.length).toFixed(1)})</p>
               <p className="poppins">Availability: {service.service_availability.join(', ')}</p>
               <p className="poppins">Rates (per hour unless otherwise stated): {service.service_rate}</p>
               <p className="poppins">Location: {service.location.join(', ')}</p>
