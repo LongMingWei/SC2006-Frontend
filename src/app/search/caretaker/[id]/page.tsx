@@ -129,7 +129,7 @@ export default function CaretakerPage() {
     return <div className="text-red-500 text-center p-4">Caretaker not found</div>;
   }
 
-  const servicesWithAverageRating = services.map(service => {
+  const servicesWithAverageRating: ServiceWithAverageRating[] = services.map(service => {
     const serviceReviews = reviews.filter(review => review.service_id === service.service_id);
     const totalRating = serviceReviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = serviceReviews.length > 0 ? totalRating / serviceReviews.length : 0;
