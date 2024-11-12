@@ -12,6 +12,7 @@ interface BookingData {
   serviceType: number;
   location: string;
   petName: string;
+  petId: number;
   timeslots: string[];
   serviceRate: number;
 }
@@ -43,7 +44,7 @@ const PaymentPage = () => {
     return <div>Loading...</div>;
   }
 
-  const { caretakerId, serviceId, serviceType, location, petName, timeslots, serviceRate } = bookingData;
+  const { caretakerId, serviceId, serviceType, location, petName, petId, timeslots, serviceRate } = bookingData;
 
   // Function to handle payment
   const handlePayment = async () => {
@@ -68,7 +69,45 @@ const PaymentPage = () => {
         }
       );
 
-      if (response.status === 201) {
+
+      let calendarUpdateSuccess = true;
+
+      for (const timeslot of timeslots) {
+        const start = new Date(timeslot);
+        const end = new Date(start.getTime() + 30 * 60000); // Add 30 minutes
+        const formattedStart = start.toISOString().replace('.000Z', '');
+        const formattedEnd = end.toISOString().replace('.000Z', '');
+        console.log(formattedStart, formattedEnd);
+
+        try {
+          const calendarResponse = await axios.post(
+        `http://localhost:8000/calendar/${caretakerId}/${serviceId}/${petId}`,
+        {
+          location: location,
+          start_time: formattedStart,
+          end_time: formattedEnd,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+          );
+
+          if (calendarResponse.status !== 201) {
+        calendarUpdateSuccess = false;
+        setPaymentError('Failed to update calendar for one or more timeslots.');
+        break;
+          }
+        } catch (error: unknown) {
+          console.error('Calendar update failed:', error);
+          calendarUpdateSuccess = false;
+          setPaymentError('Failed to update calendar for one or more timeslots.');
+          break;
+        }
+      }
+
+      if (calendarUpdateSuccess && response.status === 201) {
         // Set success message
         setPaymentSuccess(true);
         

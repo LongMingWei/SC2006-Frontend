@@ -204,6 +204,7 @@ export default function BookingPage() {
         serviceType: serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1),
         location: selectedLocation, // Assuming location is a property of caretaker
         petName: selectedPet, // Assuming selectedPet is a state variable
+        petId: ownerPets.find(pet => pet.pet_name === selectedPet)?.pet_id,
         timeslots: selectedTimeslots,
         serviceRate: serviceBooking.service_rate
       };

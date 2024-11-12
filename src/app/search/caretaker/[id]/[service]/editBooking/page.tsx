@@ -177,12 +177,6 @@ export default function BookingPage() {
     setSelectedLocation(event.target.value);
   };
 
-  const handleDateChange = (date: Date | null) => {
-    if (date) {
-      setSelectedDate(date);
-    }
-  };
-
   const filterTimes = (time: Date) => {
     return !takenTimeslots.some(slot => {
       const start = new Date(slot.start);
@@ -199,22 +193,32 @@ export default function BookingPage() {
 
   const handleEditBooking = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    console.log(selectedDate);
     try {
+      if (!selectedDate) {
+        setError('Please select a date and time');
+        return;
+      }
+      const endDate = new Date(selectedDate);
+      endDate.setTime(endDate.getTime() + 30 * 60000);
+      const formattedStartDate = selectedDate.toISOString().replace('.000Z', '');
+      const formattedEndDate = endDate.toISOString().replace('.000Z', '');
+      console.log(formattedStartDate);
+      console.log(selectedLocation);
+      console.log(formattedEndDate);
+
       const response = await axios.put(
-        `http://localhost:8000/booking/${caretakerId}/${serviceId}/${JSON.parse(sessionStorage.getItem("editBookingPet") || '{}').petId}`,
+        `http://localhost:8000/calendar/${caretakerId}/${serviceId}/${parseInt(JSON.parse(sessionStorage.getItem("editBookingPet") || '{}').petId, 10)}`,
         {
-          end: selectedDate,
+          end_time: formattedEndDate,
           location: selectedLocation,
-          start: selectedDate,
+          start_time: formattedStartDate,
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`
           }
         }
       );
-      console.log(response.data);
 
       router.push(`/homepage`);
     }
