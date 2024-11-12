@@ -76,6 +76,8 @@ export default function BookingPage() {
 
   const token = sessionStorage.getItem('access_token');
   const userId = sessionStorage.getItem('user_id');
+  // sessionStorage.setItem('caretaker_id', String(caretakerId));  
+  // sessionStorage.setItem('service_id', String(serviceId));  
 
   if (!token) {
     router.push('/signout/login');
@@ -198,10 +200,12 @@ export default function BookingPage() {
     else {
       const dataToSave = {
         caretakerId: caretakerId,
+        serviceId: serviceId,
         serviceType: serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1),
         location: selectedLocation, // Assuming location is a property of caretaker
         petName: selectedPet, // Assuming selectedPet is a state variable
         timeslots: selectedTimeslots,
+        serviceRate: serviceBooking.service_rate
       };
     
       sessionStorage.setItem('bookingData', JSON.stringify(dataToSave));
