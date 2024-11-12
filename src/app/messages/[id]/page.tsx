@@ -18,6 +18,7 @@ interface User {
   id: number;
   username: string;
   email: string;
+  name?: string; 
 }
 
 const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
@@ -39,13 +40,13 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
   useEffect(() => {
     const fetchData = async () => {
       const token = sessionStorage.getItem('access_token');
+      const currentUserType =sessionStorage.getItem('profile_type');
       if (!token) {
         router.push('/login');
         return;
       }
 
       try {
-        // First get user details to get the username
         const userResponse = await axios.get<User>(`http://localhost:8000/users/${params.id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -67,7 +68,20 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
           setRecipientProfilePicture(imageUrl);
         } catch (pictureErr) {
           console.log(`Error fetching profile picture for user ${params.id}`);
-          // Keep default profile picture if fetch fails
+        }
+
+        try{
+          const endpoint = currentUserType === '2'
+            ? `http://localhost:8000/petowner/${params.id}`
+            : `http://localhost:8000/caretaker/${params.id}`;
+
+          const nameResponse = await axios.get(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          setRecipient(prev => prev ? { ...prev, name: nameResponse.data.name } : null);
+        } catch (nameErr) {
+          console.log(`Error fetching name for user ${params.id}`);
         }
 
         // Then fetch messages using the username
@@ -94,7 +108,6 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
 
     fetchData();
 
-    // Cleanup function to revoke object URL
     return () => {
       if (recipientProfilePicture.startsWith('blob:')) {
         URL.revokeObjectURL(recipientProfilePicture);
@@ -221,18 +234,18 @@ const ChatRoom: React.FC<{ params: { id: string } }> = ({ params }) => {
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="bg-white p-4 flex items-center justify-between">
-        <div className="jua flex items-center">
+        <div className="flex items-center">
           <Link href="/messages">
             <span className="text-orange-500 mr-4">←</span>
           </Link>
           <Image 
             src={recipientProfilePicture} 
-            alt={recipient?.username || 'User'} 
+            alt={recipient?.name || recipient?.username || 'User'} 
             width={40} 
             height={40} 
             className="rounded-full object-cover w-[50px] h-[50px] mr-2"
           />
-          <span className="font-bold">{recipient?.username || 'User'}</span>
+          <span className="font-bold">{recipient?.name || recipient?.username || 'User'}</span>
         </div>
       </div>
   

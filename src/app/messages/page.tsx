@@ -12,6 +12,7 @@ interface Conversation {
   email: string;
   created_at: string;
   profilePicture: string;
+  name?: string;
 }
 
 export default function Messages() {
@@ -36,11 +37,11 @@ export default function Messages() {
           }
         });
 
-        // Fetch profile picture for each conversation
-        const conversationsWithPicture = await Promise.all(
+        const conversationsWithDetails = await Promise.all(
           response.data.map(async (conversation) => {
             const userId = conversation.id;
-            let profilePicture = '/johndoe.png'; // Default profile picture
+            let profilePicture = '/johndoe.png';
+            let name = conversation.username;
 
             try {
               const pictureResponse = await axios.get(
@@ -55,18 +56,34 @@ export default function Messages() {
               );
               const imageUrl = URL.createObjectURL(pictureResponse.data);
               profilePicture = imageUrl;
-            } catch (err) {
-              console.log(`Error fetching profile picture for user ${userId}`);
+            } catch (pictureErr) {
+              console.log(`Error fetching profile pic for user ${userId}`);
+            }
+
+            try {
+              const currentUserType = sessionStorage.getItem('profile_type');
+              const endpoint = currentUserType === '2'
+              ? `http://localhost:8000/petowner/${userId}`
+              : `http://localhost:8000/caretaker/${userId}`;
+
+              const userResponse = await axios.get(endpoint, {
+                headers: {'Authorization': `Bearer ${token}`}
+              });
+
+              name=userResponse.data.name;
+            } catch (nameErr) {
+              console.log(`Error fetching details for user ${userId}`);
             }
 
             return {
               ...conversation,
-              profilePicture
+              profilePicture,
+              name
             };
           })
         );
 
-        setConversations(conversationsWithPicture);
+        setConversations(conversationsWithDetails);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching conversations:', err);
@@ -107,14 +124,14 @@ export default function Messages() {
               <div className="flex items-center justify-center p-4">
                 <Image
                   src={conversation.profilePicture}
-                  alt={conversation.username}
+                  alt={conversation.name || conversation.username}
                   width={50}
                   height={50}
                   className="rounded-full object-cover w-[60px] h-[60px]"
                 />
                 <div className="ml-4 flex-grow">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-lg">{conversation.username}</h2>
+                    <h2 className="text-lg">{conversation.name || conversation.username}</h2>
                     <p className="text-gray-600 text-sm">Recent</p>
                   </div>
                   <p className="text-gray-600 text-sm">Click to view conversation</p>
