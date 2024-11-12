@@ -8,6 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { usePathname } from 'next/navigation';
 import axios from 'axios';
 import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 // Type for days of the week
 type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
@@ -49,21 +50,26 @@ interface PetOwner {
 }
 
 interface Timeslot {
+  start: string;
+  end: string;
   location: string;
-  start_time: Date;
-  end_time: Date;
+  summary: string;
+  status: string;
 }
 
 export default function BookingPage() {
   const [serviceBooking, setService] = useState<Service | null>(null);
+  const [takenTimeslots, setTakenTimeslots] = useState<Timeslot[]>([]);
   const [ownerPets, setOwnerPets] = useState<Pet[]>([]);
   const [selectedPet, setSelectedPet] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const initialDate = new Date();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTimeslots, setSelectedTimeslots] = useState<Date[]>([]);
 
+  const router = useRouter();
   const pathname = usePathname();
   const caretakerId = parseInt(pathname.split('/')[3] || '0', 10);
   const serviceId = parseInt(pathname.split('/')[4] || '0', 10);
@@ -94,6 +100,7 @@ export default function BookingPage() {
           }
         });
 
+        console.log(responsePets.data);
         setOwnerPets(responsePets.data.pet);
 
         const responseCalendar = await axios.get<Timeslot[]>(`http://localhost:8000/calendar/${caretakerId}`, {
@@ -103,6 +110,7 @@ export default function BookingPage() {
         });
 
         console.log(responseCalendar.data);
+        setTakenTimeslots(responseCalendar.data.events);
 
         setLoading(false);
       } catch (err) {
@@ -119,6 +127,9 @@ export default function BookingPage() {
   if (serviceBooking === null) {
     return <div className="text-red-500 text-center p-4">Service not found</div>;
   }
+
+  console.log('Pets', ownerPets);
+  console.log('Times', takenTimeslots);
 
   /* useEffect(() => {
     if (serviceBooking) {
@@ -150,6 +161,10 @@ export default function BookingPage() {
     setSelectedPet(event.target.value);
   };
 
+  const handleLocationChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedLocation(event.target.value);
+  };
+
   const handleDateChange = (date: Date | null) => {
     if (date) {
       setSelectedTimeslots(prev => [...prev, date]);
@@ -161,25 +176,38 @@ export default function BookingPage() {
   };
 
   const filterTimes = (time: Date) => {
-    const dayOfWeek = time.toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek;
-    return serviceBooking.service_availability.includes(dayOfWeek);
+    return !takenTimeslots.some(slot => {
+      const start = new Date(slot.start);
+      const end = new Date(slot.end);
+      return time >= start && time <= end;
+    });
   };
   const filterDates = (date: Date) => {
     const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' }) as DayOfWeek;
-    return serviceBooking.service_availability.includes(dayOfWeek);
+    const isAvailableDay = serviceBooking.service_availability.includes(dayOfWeek);
+    const isFutureDate = date >= new Date();
+    return isAvailableDay && isFutureDate;
   };
 
-  /* const handleSaveAndProceedToPayment = () => {
-    const dataToSave = {
-      caretakerName: caretaker.name,
-      serviceType: serviceName.charAt(0).toUpperCase() + serviceName.slice(1),
-      location: caretaker.location, // Assuming location is a property of caretaker
-      petName: selectedPet, // Assuming selectedPet is a state variable
-      timeslots: selectedTimeslots,
-    };
-  
-    localStorage.setItem('bookingData', JSON.stringify(dataToSave));
-  };  */
+  const handleSaveAndProceedToPayment = (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    if (!selectedPet || !selectedLocation || selectedTimeslots.length === 0) {
+      alert('Please select a pet, location, and at least one timeslot');
+      return;
+    }
+    else {
+      const dataToSave = {
+        caretakerId: caretakerId,
+        serviceType: serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1),
+        location: selectedLocation, // Assuming location is a property of caretaker
+        petName: selectedPet, // Assuming selectedPet is a state variable
+        timeslots: selectedTimeslots,
+      };
+    
+      sessionStorage.setItem('bookingData', JSON.stringify(dataToSave));
+      router.push(`/search/caretaker/${caretakerId}/${serviceId}/booking/payment`);
+    }
+  };  
 
   return (
     <div className="flex justify-center items-center min-h-screen">
@@ -197,8 +225,8 @@ export default function BookingPage() {
           <p><strong>Service:</strong> {serviceBooking.service.charAt(0).toUpperCase() + serviceBooking.service.slice(1)}</p>
           <p><strong>Rates:</strong> {serviceBooking.service_rate}</p>
           <p><strong>Availability:</strong> {serviceBooking.service_availability.join(', ')}</p>
-          <p><strong>Location:</strong> {serviceBooking.location.join(', ')}</p>
         </div>
+        <form onSubmit={handleSaveAndProceedToPayment}>
         <div className="mb-4 poppins">
           <label htmlFor="pet" className="block text-lg font-medium text-gray-700">Choose Pet</label>
           <select
@@ -211,6 +239,21 @@ export default function BookingPage() {
             <option value="">Select a pet</option>
             {ownerPets.map(pet => (
               <option key={pet.pet_id} value={pet.pet_name}>{pet.pet_name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4 poppins">
+          <label htmlFor="location" className="block text-lg font-medium text-gray-700">Choose Location</label>
+          <select
+            id="pet"
+            name="pet"
+            value={selectedLocation}
+            onChange={handleLocationChange}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option value="">Choose Location</option>
+            {serviceBooking.location.map(loc => (
+              <option key={loc} value={loc}>{loc}</option>
             ))}
           </select>
         </div>
@@ -227,6 +270,7 @@ export default function BookingPage() {
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             />
             <button
+              type="button" 
               onClick={() => handleDateChange(selectedDate)}
               className="ml-16 bg-orange-500 text-white px-4 py-2 rounded"
             >
@@ -240,6 +284,7 @@ export default function BookingPage() {
             <div key={index} className="flex justify-between items-center">
               <p>{timeslot.toLocaleString()}</p>
               <button
+                type="button"
                 onClick={() => handleTimeslotCancel(index)}
                 className="text-red-500 hover:text-red-700"
               >
@@ -249,10 +294,9 @@ export default function BookingPage() {
           ))}
         </div>
         <div className="flex justify-center">
-          <Link href={`/search/caretaker/${caretakerId}/${serviceId}/booking/payment`}> {/*onClick={handleSaveAndProceedToPayment}*/}
-            <div className="poppins bg-orange-500 text-white px-4 py-2 rounded">Book Now</div>
-          </Link>
+          <button type="submit" className="poppins bg-orange-500 text-white px-4 py-2 rounded">Book Now</button>
         </div>
+        </form>
       </div>
     </div>
   );

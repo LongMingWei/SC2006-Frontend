@@ -60,15 +60,21 @@ export default function EventDetails() {
           }
         });
 
-        const response = await axios.get<Service>(`http://localhost:8000/service/${caretakerId}/${serviceId}`, {
+        const responseService = await axios.get<Service>(`http://localhost:8000/service/${caretakerId}/${serviceId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const responseReview = await axios.get<Review[]>(`http://localhost:8000/review/${serviceId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
         setCaretaker(responseCare.data);
-        setService(response.data);
-        setReviews(response.data.review || []);
+        setService(responseService.data);
+        setReviews(responseReview.data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching service:', err);
@@ -87,9 +93,10 @@ export default function EventDetails() {
     return <div className="text-red-500 text-center p-4">Service not found</div>;
   }
 
-  const allReviews = service.review || [];
-  const totalRating = allReviews.reduce((sum, review) => sum + review.rating, 0);
-  const averageRating = allReviews.length > 0 ? totalRating / allReviews.length : 0;
+  console.log(reviews);
+
+  const totalRating = reviews?.reduce((sum, review) => sum + review.rating, 0);
+  const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
 
   if (loading) {
     return (
@@ -121,20 +128,20 @@ return (
       <p className="mt-2">Rates: {service.service_rate}</p>
       <p className="mt-2">Location: {service.location.join(', ')}</p>
     </div>
+    <Link href={`/search/caretaker/${caretakerId}/${serviceId}/booking`}>
+        <button className="poppins bg-orange-500 text-white px-4 py-2 rounded mt-2 mt-8">Book Now</button>
+    </Link>
     <div className="mt-8 poppins">
       <h2 className="text-xl font-bold">Reviews</h2>
-      {allReviews.map((review, index) => (
+      {reviews.map((review, index) => (
         <div key={index} className="mt-4">
           <p className="font-semibold">{review.anonymous ? 'Anonymous' : review.user_id}</p>
           <p>{review.review_description}</p>
           <p>{'⭐'.repeat(review.rating)}</p>
         </div>
       ))}
-      {allReviews.length === 0 && <p>No reviews yet</p>}
+      {reviews.length === 0 && <p>No reviews yet</p>}
     </div>
-    <Link href={`/search/caretaker/${caretakerId}/${serviceId}/booking`}>
-        <button className="poppins bg-orange-500 text-white px-4 py-2 rounded mt-2 mt-8">Book Now</button>
-    </Link>
   </div>
 );
 }
