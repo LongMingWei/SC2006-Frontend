@@ -145,7 +145,7 @@ const EditProfile: React.FC = () => {
     if (key === 'work_exp') {
       const workExp = Number(value);
       if (workExp < 0) {
-        setWorkExpError('Work experience cannot be negative.');
+        setWorkExpError('Work experience must be a positive number.');
         isFormValid = false;
       } else {
         setWorkExpError('');
