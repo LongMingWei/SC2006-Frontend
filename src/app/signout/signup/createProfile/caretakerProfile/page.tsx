@@ -96,7 +96,7 @@ const CaretakerProfile = () => {
                 }
 
                 alert('Profile saved successfully!');
-                router.push('/profile');
+                //router.push('/profile');
             } catch (error) {
                 alert((error as Error).message);
             }
