@@ -153,7 +153,7 @@ export default function CaretakerPage() {
               <p className="poppins">Rates (per hour unless otherwise stated): {service.service_rate}</p>
               <p className="poppins">Location: {service.location.join(', ')}</p>
               <Link href={`/search/caretaker/${caretakerId}/${service.service_id}`}>
-                <button className="poppins bg-orange-500 text-white px-4 py-2 rounded mt-2">Book Service</button>
+                <button className="poppins bg-orange-500 text-white px-4 py-2 rounded mt-2">View Service</button>
               </Link>
               </div>
             </div>
