@@ -22,7 +22,7 @@ export default function Notifications() {
     const fetchNotifications = async () => {
       const token = sessionStorage.getItem('access_token');
       const userId = sessionStorage.getItem('user_id');
-      
+
       if (!token || !userId) {
         router.push('/signout/login');
         return;
@@ -63,32 +63,53 @@ export default function Notifications() {
     return <div className="text-red-500 text-center p-4">{error}</div>;
   }
 
+  // Function to extract and shorten clickable links
+  const renderDetailWithLink = (detail: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = detail.split(urlRegex);
+    return parts.map((part, index) =>
+      urlRegex.test(part) ? (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline"
+        >
+          Booking details
+        </a>
+      ) : (
+        part
+      )
+    );
+  };
+
   return (
     <div>
       <div className="jua flex items-center justify-center w-full bg-white py-3">
         <h1 className="text-3xl font-bold text-center">Notifications</h1>
       </div>
-      <div className="poppins space-y-8">
-        {notifications.map(notification => (
-          <div key={notification.id} className="w-full cursor-pointer">
-            <div className="border-t-4 border-gray-50"></div>
-            <div className="flex items-center justify-center p-4">
+      <div className="poppins space-y-8 p-4">
+      {[...notifications].reverse().map((notification) => (
+          <div key={notification.id} className="w-full cursor-pointer border-b border-gray-200 pb-4">
+            <div className="flex items-start">
+              {/* Bell icon fixed on the left */}
               <Image
-                src="/bell-icon.png"  // Replace with your bell icon image path
+                src="/bell-icon.png" // Replace with your bell icon image path
                 alt="Notification Bell Icon"
                 width={50}
                 height={50}
                 className="object-cover w-[60px] h-[60px]"
               />
-              <div className="ml-4 flex-grow">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold">{notification.header}</h2>
-                  <p className="text-gray-600 text-sm">{new Date(notification.created_at).toLocaleDateString()}</p>
-                </div>
-                <p className="text-gray-600 text-sm">{notification.detail}</p>
+              {/* Notification text on the right */}
+              <div className="ml-4 flex flex-col flex-grow">
+                <h2 className="text-lg font-bold mb-1">{notification.header}</h2>
+                <p className="text-gray-600 text-sm mb-2">{renderDetailWithLink(notification.detail)}</p>
+                <p className="text-gray-400 text-xs">
+                  {new Date(notification.created_at).toLocaleString()}
+                </p>
               </div>
             </div>
-            <div className="border-t-4 border-orange-500"></div>
           </div>
         ))}
       </div>
