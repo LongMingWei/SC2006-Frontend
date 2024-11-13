@@ -104,7 +104,7 @@ const AddServiceProfile = () => {
                 {/* Form fields */}
                 <div className="poppins mt-6">
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Pet Name*</label>
+                        <label className="block text-lg font-bold mb-2">Pet Name<span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
@@ -115,7 +115,7 @@ const AddServiceProfile = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-lg font-bold mb-2">Species*</label>
+                        <label className="block text-lg font-bold mb-2">Species<span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             className="w-full p-2 border border-orange-500 rounded"
