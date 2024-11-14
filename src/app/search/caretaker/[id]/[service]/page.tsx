@@ -72,6 +72,7 @@ export default function EventDetails() {
             `http://localhost:8000/review/${serviceId}`,
             { headers: { 'Authorization': `Bearer ${token}` } }
           );
+          console.log(responseReview)
 
           if (responseReview.data && responseReview.data.length > 0) {
             // Only fetch petowner details if we have reviews

@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import axios from 'axios';
 import router from 'next/router';
 import { useRouter } from 'next/navigation';
+import moment from 'moment-timezone';
 
 // Type for days of the week
 type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
@@ -111,8 +112,9 @@ export default function BookingPage() {
           }
         });
 
-        console.log(responseCalendar.data);
-        setTakenTimeslots(responseCalendar.data.events);
+        // console.log(responseCalendar.data);
+        if (responseCalendar.data != null)
+          setTakenTimeslots(responseCalendar.data.events);
 
         setLoading(false);
       } catch (err) {
@@ -126,7 +128,7 @@ export default function BookingPage() {
     fetchCaretaker();
   }, []);
 
-  if (serviceBooking === null) {
+  if (serviceBooking == null) {
     return <div className="text-red-500 text-center p-4">Service not found</div>;
   }
 
@@ -169,7 +171,8 @@ export default function BookingPage() {
 
   const handleDateChange = (date: Date | null) => {
     if (date) {
-      setSelectedTimeslots(prev => [...prev, date]);
+      const dateInSingapore = moment(date).tz("Asia/Singapore").toDate(); // Convert to Singapore time
+      setSelectedTimeslots(prev => [...prev, dateInSingapore]);
     }
   };
 
@@ -274,6 +277,7 @@ export default function BookingPage() {
                 filterDate={filterDates}
                 dateFormat="Pp"
                 className="w-full pl-3 pr-10 py-2 text-base focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
+                timeZone="Asia/Singapore"
               />
             </div>
             <button
@@ -289,7 +293,7 @@ export default function BookingPage() {
           <h3 className="text-lg font-medium text-gray-700">Selected Timeslots:</h3>
           {selectedTimeslots.map((timeslot, index) => (
             <div key={index} className="flex justify-between items-center">
-              <p>{timeslot.toLocaleString()}</p>
+              <p>{moment(timeslot).tz("Asia/Singapore").format("YYYY-MM-DD HH:mm")}</p>
               <button
                 type="button"
                 onClick={() => handleTimeslotCancel(index)}

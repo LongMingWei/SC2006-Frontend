@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';  // Import axios for sending requests
 import { useRouter } from 'next/navigation';
+import moment from 'moment-timezone';
+
 
 interface BookingData {
   caretakerId: number;
@@ -75,8 +77,8 @@ const PaymentPage = () => {
       for (const timeslot of timeslots) {
         const start = new Date(timeslot);
         const end = new Date(start.getTime() + 30 * 60000); // Add 30 minutes
-        const formattedStart = start.toISOString().replace('.000Z', '');
-        const formattedEnd = end.toISOString().replace('.000Z', '');
+        const formattedStart = start.toLocaleString('sv-SE', { timeZone: 'Asia/Singapore' }).replace(' ', 'T');
+        const formattedEnd = end.toLocaleString('sv-SE', { timeZone: 'Asia/Singapore' }).replace(' ', 'T');
         console.log(formattedStart, formattedEnd);
 
         try {
@@ -156,11 +158,16 @@ const PaymentPage = () => {
             <h1 className="jua text-3xl font-bold">Payment</h1>
           </div>
           <div className="text-left mb-8 poppins">
-            <p><strong>Caretaker:</strong> {caretakerId}</p>
+            {/* <p><strong>Caretaker:</strong> {caretakerId}</p> */}
             <p><strong>Service:</strong> {serviceType}</p>
             <p><strong>Location:</strong> {location}</p>
             <p><strong>Pet’s name:</strong> {petName}</p>
-            <p><strong>Timeslots chosen:</strong> {timeslots.join(', ')}</p>
+            <p>
+              <strong>Timeslots chosen:</strong> {timeslots.map(timeslot => 
+                moment(timeslot).tz("Asia/Singapore").format("YYYY-MM-DD HH:mm")
+              ).join(', ')}
+            </p>
+
           </div>
           <div className="text-left mb-8 poppins">
             <p><strong>Service Fee: </strong>{`$${serviceRate * timeslots.length}`}</p>

@@ -55,7 +55,7 @@ const TabbedMenu = () => {
 
     checkProfileType();
 
-    const interval = setInterval(fetchUserData, 1000);
+    const interval = setInterval(fetchUserData, 2000);
 
     return () => {
       clearInterval(interval);

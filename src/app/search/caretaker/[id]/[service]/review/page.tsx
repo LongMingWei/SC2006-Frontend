@@ -114,6 +114,9 @@ export default function ReviewPage() {
   const handleReview = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     try {
+      console.log(rating)
+      console.log(reviewDescription)
+      console.log(anonymous)
         await axios.post(
             `http://localhost:8000/review/${serviceId}`,
             {
