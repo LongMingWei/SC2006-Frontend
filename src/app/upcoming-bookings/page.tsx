@@ -5,7 +5,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { format } from 'date-fns';
+import moment from 'moment-timezone';
 
 interface BookingEvent {
   start: string;
@@ -80,7 +80,7 @@ export default function UpcomingBookings() {
         <Link href="/homepage">
           <div className="text-orange-500 text-3xl mr-4 inline-block">←</div>
         </Link>
-        <h1 className="jua text-3xl font-bold text-center">Upcoming Events</h1>
+        <h1 className="jua text-3xl font-bold text-center">Upcoming Bookings</h1>
       </div>
       <div className="poppins space-y-8">
         {bookings.map(event => (
@@ -97,7 +97,9 @@ export default function UpcomingBookings() {
                 />
                 <div className="ml-4">
                   <h2 className="text-xl font-semibold">{event.summary}</h2>
-                  <p className="text-gray-600">{format(new Date(event.start), 'Pp')} - {format(new Date(event.end), 'Pp')}</p>
+                  <p className="text-gray-600">
+                    {moment.tz(event.start, "Asia/Singapore").format("MM/DD/YYYY h:mm A")} - {moment.tz(event.end, "Asia/Singapore").format("MM/DD/YYYY h:mm A")}
+                  </p>
                   <p className="text-gray-600">{event.location}</p>
                 </div>
               </div>

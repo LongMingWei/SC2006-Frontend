@@ -57,12 +57,13 @@ const PaymentPage = () => {
         alert('Access token is missing. Please log in again.');
         return;
       }
-
+      
       const response = await axios.post(
-        `http://localhost:8000/payment/${caretakerId}/${serviceId}`,
+        `http://localhost:8000/payment/${caretakerId}/${serviceId}?sessions=${timeslots.length}`,
         {
           caretaker_id: caretakerId,
           service_id: serviceId,
+          sessions: timeslots.length,
         },
         {
           headers: {

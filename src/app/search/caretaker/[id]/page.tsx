@@ -186,7 +186,7 @@ export default function CaretakerPage() {
                     {` (${serviceRating.toFixed(1)})`}
                   </p>
                   <p className="poppins mt-2">Availability: {service.service_availability.join(', ')}</p>
-                  <p className="poppins mt-2">Rates (per hour): ${service.service_rate}</p>
+                  <p className="poppins mt-2">Rates (per session): ${service.service_rate}</p>
                   <p className="poppins mt-2">Location: {service.location.join(', ')}</p>
                   <Link href={`/search/caretaker/${caretakerId}/${service.service_id}`} className="block mt-4">
                     <button className="poppins bg-orange-500 text-white px-6 py-3 rounded hover:bg-orange-600 transition-colors w-full sm:w-auto">

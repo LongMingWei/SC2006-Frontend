@@ -200,8 +200,8 @@ export default function BookingPage() {
       }
       const endDate = new Date(selectedDate);
       endDate.setTime(endDate.getTime() + 30 * 60000);
-      const formattedStartDate = selectedDate.toISOString().replace('.000Z', '');
-      const formattedEndDate = endDate.toISOString().replace('.000Z', '');
+      const formattedStartDate = selectedDate.toLocaleString('sv-SE', { timeZone: 'Asia/Singapore' }).replace(' ', 'T');
+      const formattedEndDate = endDate.toLocaleString('sv-SE', { timeZone: 'Asia/Singapore' }).replace(' ', 'T');
       console.log(formattedStartDate);
       console.log(selectedLocation);
       console.log(formattedEndDate);
