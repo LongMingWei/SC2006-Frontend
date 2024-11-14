@@ -44,7 +44,7 @@ export default function EventDetails() {
 
       try {
         const response = await axios.get<{ events: BookingEvent[] }>(
-          `http://localhost:8000/calendar`,
+          `http://localhost:8000/calendar/upcoming/${userId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`

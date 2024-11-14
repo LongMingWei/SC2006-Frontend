@@ -38,15 +38,22 @@ export default function UpcomingBookings() {
 
       try {
         const response = await axios.get<{ events: BookingEvent[] }>(
-          `http://localhost:8000/calendar`,
+          `http://localhost:8000/calendar/upcoming/${userId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           }
         );
-        console.log(response.data.events);
-        setBookings(response.data.events);
+        
+        const fetchedBookings = response.data.events;
+
+        // Check if no bookings are found, avoid setting error state
+        if (fetchedBookings.length === 0) {
+          setBookings([]);
+        } else {
+          setBookings(fetchedBookings);
+        }
         setLoading(false);
       } catch (err) {
         console.error('Error fetching booking history:', err);
@@ -66,7 +73,8 @@ export default function UpcomingBookings() {
     );
   }
 
-  if (error) {
+  // Only show the error message if there's an actual error, not if bookings are empty
+  if (error && bookings.length > 0) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="text-red-500">{error}</div>
@@ -83,30 +91,35 @@ export default function UpcomingBookings() {
         <h1 className="jua text-3xl font-bold text-center">Upcoming Bookings</h1>
       </div>
       <div className="poppins space-y-8">
-        {bookings.map(event => (
-          <Link key={event.start} href={`upcoming-bookings/event/${event.start}`}>
-            <div className="w-full cursor-pointer">
-              <div className="border-t-4 border-orange-500"></div>
-              <div className="flex items-center justify-center p-4">
-                <Image
-                  src="/dog.png"
-                  alt={event.summary}
-                  width={64}
-                  height={64}
-                  className="rounded-full"
-                />
-                <div className="ml-4">
-                  <h2 className="text-xl font-semibold">{event.summary}</h2>
-                  <p className="text-gray-600">
-                    {moment.tz(event.start, "Asia/Singapore").format("MM/DD/YYYY h:mm A")} - {moment.tz(event.end, "Asia/Singapore").format("MM/DD/YYYY h:mm A")}
-                  </p>
-                  <p className="text-gray-600">{event.location}</p>
+        {/* If no bookings, show 'No upcoming bookings' */}
+        {bookings.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">No upcoming bookings</div>
+        ) : (
+          bookings.map(event => (
+            <Link key={event.start} href={`/upcoming-bookings/event/${event.start}`}>
+              <div className="w-full cursor-pointer">
+                <div className="border-t-4 border-orange-500"></div>
+                <div className="flex items-center justify-center p-4">
+                  <Image
+                    src="/dog.png"
+                    alt={event.summary}
+                    width={64}
+                    height={64}
+                    className="rounded-full"
+                  />
+                  <div className="ml-4">
+                    <h2 className="text-xl font-semibold">{event.summary}</h2>
+                    <p className="text-gray-600">
+                      {moment.tz(event.start, "Asia/Singapore").format("MM/DD/YYYY h:mm A")} - {moment.tz(event.end, "Asia/Singapore").format("MM/DD/YYYY h:mm A")}
+                    </p>
+                    <p className="text-gray-600">{event.location}</p>
+                  </div>
                 </div>
+                <div className="border-t-4 border-orange-500"></div>
               </div>
-              <div className="border-t-4 border-orange-500"></div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );
