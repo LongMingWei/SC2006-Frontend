@@ -93,9 +93,9 @@ const TabbedMenu = () => {
               className="text-orange-500 text-xl"
               style={{ cursor: 'pointer' }}
             />
-            {sessionStorage.getItem('notifications') && (
+{/*             {sessionStorage.getItem('notifications') && (
               <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-red-500"></span>
-            )}
+            )} */}
             </Link>
         </div>
       </div>
