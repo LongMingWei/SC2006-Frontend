@@ -155,7 +155,7 @@ export default function CaretakerPage() {
           <h1 className="jua text-2xl font-bold">{caretaker.name}</h1>
           <button 
             onClick={() => router.push(`/messages/${caretakerId}`)}
-            className="ml-auto flex items-center justify-center bg-orange-500 text-white px-3 py-1 rounded">
+            className="poppins ml-auto flex items-center justify-center bg-orange-500 text-white px-3 py-1 rounded">
             <FontAwesomeIcon icon={faComment} className="mr-2"/> Chat
           </button>
         </div>

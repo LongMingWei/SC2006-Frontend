@@ -36,6 +36,7 @@ export default function Notifications() {
         });
 
         setNotifications(response.data);
+        sessionStorage.setItem('notifications', 'false'); // Set session storage item to false
         setLoading(false);
       } catch (err) {
         console.error('Error fetching notifications:', err);
@@ -66,8 +67,19 @@ export default function Notifications() {
   // Function to extract and shorten clickable links
   const renderDetailWithLink = (detail: string) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = detail.split(urlRegex);
-    return parts.map((part, index) =>
+    const dateRegex = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\b/g;
+    
+    const parts = detail.split(urlRegex).map((part) => {
+      // Process dates within each part
+      return part.split(' ').map((subPart) => {
+        if (dateRegex.test(subPart)) {
+          subPart = subPart.replace('T', ' ');
+        }
+        return subPart; // Non-date portions remain unchanged
+      }).join(' ');
+    }).join('');
+
+    return parts.split(urlRegex).map((part, index) =>
       urlRegex.test(part) ? (
         <a
           key={index}

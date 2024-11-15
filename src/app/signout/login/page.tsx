@@ -8,6 +8,8 @@ const Login = () => {
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState(''); 
   const router = useRouter(); 
+
+  sessionStorage.setItem('notifications', 'false'); // Set session storage item to true
  
   const handleLogin = async () => { 
     if (email && password) { 

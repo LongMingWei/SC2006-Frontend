@@ -26,6 +26,8 @@ export default function EventDetails() {
 
   const [booking, setBooking] = useState<BookingEvent | null>(null);
   const [caretakerName, setCaretakerName] = useState<string | null>(null);
+  const [successEdit, setSuccessEdit] = useState(false);
+  const [successCancel, setSuccessCancel] = useState(false);
   const [petName, setPetName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -146,7 +148,12 @@ export default function EventDetails() {
         }
       });
 
-      router.push('/homepage');
+      if (response.status === 204) {
+        setSuccessCancel(true);
+        setTimeout(() => {
+          router.push('/upcoming-bookings');
+        }, 1000);
+      }
 
     } catch (err) {
       console.error('Error canceling booking:', err);
@@ -187,6 +194,8 @@ export default function EventDetails() {
             <button onClick={handleEditBooking} className="bg-orange-500 text-white px-4 py-2 rounded">Change Time</button>
             <button onClick={handleCancelBooking} className="bg-orange-500 text-white px-4 py-2 rounded">Cancel Booking</button>
           </div>
+          {successEdit && <div className="text-green-500 mt-4">Booking successfully edited</div>}
+          {successCancel && <div className="text-green-500 mt-4">Booking successfully canceled. Redirecting...</div>}
         </div>
       </div>
     </div>

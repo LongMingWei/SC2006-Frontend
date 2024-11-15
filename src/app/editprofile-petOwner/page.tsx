@@ -157,7 +157,7 @@ const EditProfile: React.FC = () => {
     const userId = sessionStorage.getItem('user_id');
 
     if (!token || !userId) {
-      router.push('/login');
+      router.push('/signout/login');
       return;
     }
 
@@ -193,7 +193,7 @@ const EditProfile: React.FC = () => {
       if (axios.isAxiosError(err) && err.response) {
         if (err.response.status === 401) {
           sessionStorage.clear();
-          router.push('/login');
+          router.push('/signout/login');
           return;
         }
         setError(err.response.data.detail || 'Failed to update profile');

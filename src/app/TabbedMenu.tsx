@@ -87,13 +87,16 @@ const TabbedMenu = () => {
           <span className="poppinsbold text-l text-orange-500">Hello, {userName}</span>
           
           {/* New Link for the bell icon that leads to /notifications */}
-          <Link href="/notifications">
+            <Link href="/notifications" className="relative">
             <FontAwesomeIcon
               icon={faBell} // Bell icon for notifications
               className="text-orange-500 text-xl"
               style={{ cursor: 'pointer' }}
             />
-          </Link>
+            {sessionStorage.getItem('notifications') && (
+              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-red-500"></span>
+            )}
+            </Link>
         </div>
       </div>
       

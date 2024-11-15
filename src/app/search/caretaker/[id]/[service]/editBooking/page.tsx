@@ -79,6 +79,7 @@ export default function BookingPage() {
   const [error, setError] = useState<string | null>(null);
   const initialDate = new Date();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [successEdit, setSuccessEdit] = useState<boolean>(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -220,7 +221,12 @@ export default function BookingPage() {
         }
       );
 
-      router.push(`/homepage`);
+      if (response.status === 200) {
+        setSuccessEdit(true);
+        setTimeout(() => {
+          router.push('/upcoming-bookings');
+        }, 1000);
+      }
     }
     catch (err) {
       console.error('Error editing booking:', err);
@@ -235,7 +241,7 @@ export default function BookingPage() {
           <Image src='/dog.png' alt={serviceBooking.service} width={180} height={180} className="rounded-full mr-4" />
           <div className="ml-4">
             <h1 className="jua text-3xl font-bold">(Editing) {serviceBooking.service}</h1>
-            <Link href={`/search/caretaker/${caretakerId}/${serviceId}`}>
+            <Link href={`/upcoming-bookings`}>
               <div className="poppins text-orange-500 text-xl mb-4">← Back</div>
             </Link>
           </div>
@@ -281,6 +287,7 @@ export default function BookingPage() {
           <button type="submit" className="poppins bg-orange-500 text-white px-4 py-2 rounded">Book Now</button>
         </div>
         </form>
+        {successEdit && <div className="poppins text-green-500 text-center mt-4">Booking edited successfully! Redirecting...</div>}
       </div>
     </div>
   );
