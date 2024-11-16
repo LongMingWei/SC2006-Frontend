@@ -1,10 +1,7 @@
 # How To Run
 ## FrontEnd
-1. Proceed to the frontend directory by typing this in the terminal
-```
-cd frontend
-```
-2. Install the neccessary packages
+1. Proceed to the ```/frontend``` directory
+2. Install the neccessary packages by typing in the terminal
 ```
 npm install
 ```
