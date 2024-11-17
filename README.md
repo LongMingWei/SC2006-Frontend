@@ -1,5 +1,6 @@
-# PetBuddy by 2006-SCS4-59 🐶
+# PetBuddy 🐶
 
+By Group 2006-SCS4-59
 Welcome to the official repository for NTU SC2006 Software Engineering group project **_PetBuddy_**.
 
 <p align="center">
