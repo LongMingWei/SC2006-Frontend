@@ -111,11 +111,11 @@ IMPORTANT: Make sure the frontend is running as well. Refer to the frontend sect
 INFO:     Application startup complete.
 ```
 
-## API Docs
+# API Docs
 
 The PetBuddy Backend application uses FastAPI, which comes with an in-built documentation and testing functionality for API routes created. You may access it via http://127.0.0.1:8000/docs/ after activating the backend
 
-## App Design
+# App Design
 
 ## Frontend
 
