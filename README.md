@@ -129,7 +129,7 @@ If you would like to seed the database with pre-configured data, please uncommen
 
 _Note: Please ensure that the `sql_app.db` in the app directory is deleted before re-starting the application._
 
-# Pre-configured Users
+# Pre-configured Users ?
 
 | Name                                     | Role     | Email               | Password  |
 | ---------------------------------------- | -------- | ------------------- | --------- |
