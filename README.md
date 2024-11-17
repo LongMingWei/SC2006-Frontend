@@ -40,7 +40,7 @@ https://github.com/xJQx/sc2006-feeditforward/assets/47933193/e90f0b90-c276-47da-
 <summary>Supporting Documentations</summary>
 <br>
 
-1. [Software Requirements Specification](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Software%20Requirements%20Specification.pdf)
+1. [Software Requirements Specification](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/Software%20Requirements%20Specification.pdf)
 2. [Code and API Documentations](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/Documentations.pdf)
 3. [Use Case Diagram and Descriptions](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/Use%20Case%20Diagram%20and%20Descriptions.pdf)
 4. [User Interface Mockups](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/User%20Interface%20Mockups.pdf)
