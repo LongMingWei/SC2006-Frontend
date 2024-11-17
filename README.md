@@ -1,7 +1,8 @@
 # PetBuddy 🐶
 
-By Group 2006-SCS4-59
-Welcome to the official repository for NTU SC2006 Software Engineering group project **_PetBuddy_**.
+**By Group 2006-SCS4-59**
+
+Welcome to the official repository for NTU SC2006 Software Engineering group project **PetBuddy**.
 
 <p align="center">
     <a href="https://github.com/softwarelab3/2006-SCS4-59/tree/main/lab5/Application%20Code/Frontend">Frontend</a>
@@ -70,7 +71,7 @@ PetBuddy is the ultimate app for connecting pet owners with trusted, professiona
 
 ## Frontend
 
-1. Navigate to this directory where this readme file is
+1. Navigate to the [frontend directory](https://github.com/softwarelab3/2006-SCS4-59/tree/main/lab5/Application%20Code/Frontend), download it and open a terminal at its root
 2. Install the neccessary packages
 ```
 npm install
@@ -88,12 +89,12 @@ IMPORTANT: Make sure the backend is running as well. Refer to the backend sectio
 
 ## Backend
 
-1. Navigate to this directory where this readme file is
+1. Navigate to the [backend directory](https://github.com/softwarelab3/2006-SCS4-59/tree/main/lab5/Application%20Code/Backend), download it and open a terminal at its root
 2. create a venv by typing
 ```
 python -m venv .venv
 ```
-3. select the python venv intepreter eg Python 3.12.6('venv':venv)
+3. select the python venv intepreter e.g. Python 3.12.6('venv':venv)
 4. activate the virtual environment.
 ```
 .venv/Scripts/activate
@@ -116,7 +117,7 @@ IMPORTANT: Make sure the frontend is running as well. Refer to the frontend sect
 INFO:     Application startup complete.
 ```
 
-### Database Seeding
+### Database Seeding ?
 
 If you would like to seed the database with pre-configured data, please uncomment the following line in the `backend/app/main.py` before re-starting the application.
 
@@ -150,20 +151,12 @@ The PetBuddy Backend application uses FastAPI, which comes with an in-built docu
 
 ## Frontend
 
-The frontend (React.js) mainly consists of the different **User Interfaces** (Screens), which are structured and categorized into **AdminUI**, **ConsumerUI**, **DriverUI**, **HawkerUI**, and **MainUI** as designed in the class diagrams. More detailed sub-screens can be found in the respective UI screen folders. They can be found in the `/src/screens` directory.
-
-The `/src/App.tsx` is the entry point of the frontend application.
-
-Other folders such as `/components`, `/contexts`, `/data`, `/utils`, `/schemas`, `/hooks`, and `/contexts` contains helper files that makes the frontend code more organized and easier to read for ease of collaboration (as recommended by the React.js framework).
+The frontend (React.js) mainly consists of the different **User Interfaces** (Screens), which can be found as page.tsx within named folders in src/app. Some of the pages are nested as they are linked to each other, such as the `/search` directory which consists of displaying caretakers and their individual service pages which can then be booked and paid for. TabbedMenu.tsx is a component that displays a navigation bar and notifications button and persists throughout the app after the user is logged in. It is put in the layout.tsx file in the root directory.
 
 ## Backend
 
-- `📁 app/assets`
-  - Contains server assets like data files and uploads.
 - `📁 app/models`
-  - Contains the Business Objects.
-- `📁 app/services`
-  - Contains methods to create, read, update, and delete business objects.
+  - Contains the columns of each table and their data types and relationships with other tables if any
 - `📁 app/controllers`
   - Controllers that uses the various services implemented in the `app/services` directory.
   - They implements the Facade Pattern by masking the more complex underlying implementation details from the frontend.
@@ -171,15 +164,13 @@ Other folders such as `/components`, `/contexts`, `/data`, `/utils`, `/schemas`,
   - Routers that implements REST API endpoints for communication between frontend and backend. They allow the frontend to use the controllers in the backend.
   - Routers use the controllers implemented in the `app/controllers` directory.
 - `📁 app/schemas`
-  - Defines all the request and response fields.
-- `📁 app/factory`
-  - Factory design pattern implementation of the database.
+  - Defines all the request and response fields that are passed between the app and database.
 - `📁 app/database.py`
   - Entry point to database that will store all the business objects.
 - `📁 app/websocket.py`
   - Implements the Publisher-Subscriber Pattern via websockets for real-time text messaging communication between different users.
 
-## Design Patterns
+## Design Patterns ?
 
 1. **`Strategy + Factory Patterns`** for Database Implementation.
    a. Refer to `backend/app/factory/database.py`
@@ -188,7 +179,7 @@ Other folders such as `/components`, `/contexts`, `/data`, `/utils`, `/schemas`,
 3. **`Publisher-Subscriber Pattern`** for real-time text messaging communication between different users (websocket).
    a. Refer to `backend/app/websocket.py`
 
-## SOLID Principles
+## SOLID Principles ?
 
 1. **`Single Responsibility Principle (SRP)`**
    a. Different packages with different distinct responsibilities are created. Specific classes in each package are responsible for a specific business model or logic group.
@@ -204,28 +195,27 @@ Other folders such as `/components`, `/contexts`, `/data`, `/utils`, `/schemas`,
 
 **Frontend:**
 
-- React.js
-- TypeScript
-- Tailwind CSS
+- React.js: Core framework for building the user interface
+- Next.js: For routing and server side rendering
+- TypeScript: For type safety
+- Axios: For making HTTP requests to the backend
+- TailwindCSS: For styling
 
 **Backend:**
 
-- FastAPI
-- Python
-- MySQL
+- FastAPI: Main web framework for your API
+- Uvicorn: Backend server to run FastAPI
+- Python: Language to code and define the database with packagaes like sqlalchemy
+- MySQL: The foundation of the database
 
 # External APIs
 
-1. **Singapore's OneMap API**
-   1. Map (https://www.onemap.gov.sg/docs/maps/)
-   2. Geocoding (https://developers.onemap.sg/commonapi/search?searchVal=639798&returnGeom=Y&getAddrDetails=Y)
-2. **Weather API (Live)**
-   1. 24-hour Weather Forecast (https://beta.data.gov.sg/datasets/d_50d2bbe678607d78d74a0fe6e8b5b6dd/view)
-   2. 4-day Weather Forecast (https://beta.data.gov.sg/datasets/d_1efe4728b2dad26fd7729c5e4eff7802/view)
-3. **Hawker GeoJson Dataset**
-   1. https://beta.data.gov.sg/collections/1445/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view
-4. **Google OAuth 2.0 API**
-   1. https://developers.google.com/identity/protocols/oauth2
+1. **Google Calendar**
+   1. [Google Calendar API Docs](https://developers.google.com/calendar/api/guides/overview)
+2. **Google Maps**
+   1. [Google Map API Docs](https://developers.google.com/maps/documentation/javascript/overview)
+3. **Eventbrite API**
+   1. [Eventbrite API Docs](https://www.eventbrite.com/platform/api)
 
 # Contributors
 
