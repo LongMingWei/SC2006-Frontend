@@ -52,8 +52,6 @@ PetBuddy is the ultimate app for connecting pet owners with trusted, professiona
 - [Setup Instructions](#setup-instructions)
   - [Frontend](#frontend)
   - [Backend](#backend)
-    - [Database Seeding](#database-seeding)
-- [Pre-configured Users](#pre-configured-users)
 - [Documentation](#documentation)
 - [API Docs](#api-docs)
   - [API Endpoints](#api-endpoints)
@@ -61,8 +59,6 @@ PetBuddy is the ultimate app for connecting pet owners with trusted, professiona
   - [Overview](#overview)
   - [Frontend](#frontend-1)
   - [Backend](#backend-1)
-  - [Design Patterns](#design-patterns)
-  - [SOLID Principles](#solid-principles)
   - [Tech Stack](#tech-stack)
 - [External APIs](#external-apis)
 - [Contributors](#contributors)
@@ -117,32 +113,6 @@ IMPORTANT: Make sure the frontend is running as well. Refer to the frontend sect
 INFO:     Application startup complete.
 ```
 
-### Database Seeding ?
-
-If you would like to seed the database with pre-configured data, please uncomment the following line in the `backend/app/main.py` before re-starting the application.
-
-```python
-# app/main.py
-# Uncomment this line 👇🏻
-# add_event_listener_to_seed_database()
-```
-
-_Note: Please ensure that the `sql_app.db` in the app directory is deleted before re-starting the application._
-
-# Pre-configured Users ?
-
-| Name                                     | Role     | Email               | Password  |
-| ---------------------------------------- | -------- | ------------------- | --------- |
-| Admin Jane                               | Admin    | admin1@gmail.com    | 123123123 |
-| Janice                                   | Consumer | consumer1@gmail.com | 123123123 |
-| Alicia                                   | Consumer | consumer2@gmail.com | 123123123 |
-| James                                    | Consumer | consumer3@gmail.com | 123123123 |
-| Alex (A Hot Hideout)                     | Hawker   | hawker1@gmail.com   | 123123123 |
-| Adam (North Spine Koufu - Cai Fan Store) | Hawker   | hawker2@gmail.com   | 123123123 |
-| Aaron (The Crowded Bowl)                 | Hawker   | hawker3@gmail.com   | 123123123 |
-| Tim                                      | Driver   | driver1@gmail.com   | 123123123 |
-| Thomas                                   | Driver   | driver2@gmail.com   | 123123123 |
-
 # Documentation
 
 # API Docs
@@ -169,27 +139,6 @@ The frontend (React.js) mainly consists of the different **User Interfaces** (Sc
   - Entry point to database that will store all the business objects.
 - `📁 app/websocket.py`
   - Implements the Publisher-Subscriber Pattern via websockets for real-time text messaging communication between different users.
-
-## Design Patterns ?
-
-1. **`Strategy + Factory Patterns`** for Database Implementation.
-   a. Refer to `backend/app/factory/database.py`
-2. **`Facade Pattern`** via the Controllers.
-   a. Refer to `backend/app/controllers/*.py`
-3. **`Publisher-Subscriber Pattern`** for real-time text messaging communication between different users (websocket).
-   a. Refer to `backend/app/websocket.py`
-
-## SOLID Principles ?
-
-1. **`Single Responsibility Principle (SRP)`**
-   a. Different packages with different distinct responsibilities are created. Specific classes in each package are responsible for a specific business model or logic group.
-2. **`Open-Closed Principle (OCP)`**
-   a. The application is open to extension through the use of strategy pattern (database) as well as facade pattern (controllers).
-3. **`Interface Segregation Principle (ISP)`**
-   a. Numerous small and specific interfaces are used.
-   b. For example, in `backend/app/schemas/consumer.py`, there are `Consumer`, `ConsumerCreate`, and `ConsumerUpdate` interfaces which are used for different purposes (Display, Creation, and Update).
-4. **`Dependency Inversion Principle (DIP)`**
-   a. High level and low level modules depends on abstractions through the use of the interfaces (`backend/app/schemas` and `frontend/src/schemas`).
 
 ## Tech Stack
 
