@@ -1,19 +1,3 @@
-# How To Run
-## FrontEnd
-1. Proceed to the ```/frontend``` directory
-2. Install the neccessary packages by typing in the terminal
-```
-npm install
-```
-3. Once done, start the app by typing
-```
-npm run dev
-```
-4. Ctrl+Click on the [http://localhost:3000] to view the app on the web!
-5. For movile view, right click the web page and select inspect element
-6. Ctrl+shift+M to change from webview to mobile view.
-
-
 # PetBuddy by 2006-SCS4-59 🐶
 
 Welcome to the official repository for NTU SC2006 Software Engineering group project **_PetBuddy_**.
@@ -26,7 +10,7 @@ Welcome to the official repository for NTU SC2006 Software Engineering group pro
     <a href="https://youtu.be/L2OwSFCVsoI">Demo Video</a>
 </p>
 
-Petbuddy is the ultimate app for connecting pet owners with trusted, professional caretakers. Whether you need a dog walker, a cat sitter, or someone to care for your furry friend while you're away, Petbuddy makes finding reliable help easy and stress-free. Browse through profiles, read reviews, and book the perfect caretaker to ensure your pet gets the love and attention they deserve. With Petbuddy, peace of mind is just a tap away!
+PetBuddy is the ultimate app for connecting pet owners with trusted, professional caretakers. Whether you need a dog walker, a cat sitter, or someone to care for your furry friend while you're away, PetBuddy makes finding reliable help easy and stress-free. Browse through profiles, read reviews, and book the perfect caretaker to ensure your pet gets the love and attention they deserve. With PetBuddy, peace of mind is just a tap away!
 
 <details>
 <summary>Demo Video</summary>
@@ -85,43 +69,51 @@ Petbuddy is the ultimate app for connecting pet owners with trusted, professiona
 
 ## Frontend
 
-1. In the `/frontend` directory, install the required node modules.
-
-```bash
+1. Navigate to this directory where this readme file is
+2. Install the neccessary packages
+```
 npm install
 ```
-
-2. Start the application.
-
-```bash
-npm run start
+3. Once done, start the app by typing
+```
+npm run dev
 ```
 
-And you are ready to start using the FeedItForward Frontend! The frontend application is running on http://localhost:3000/
+IMPORTANT: Make sure the backend is running as well. Refer to the backend section for more details.
+
+4. Ctrl+Click on the [http://localhost:3000] to view the app on the web!
+5. For movile view, right click the web page and select inspect element
+6. Ctrl+shift+M to change from webview to mobile view.
 
 ## Backend
 
-1. In the `/backend` directory, create a python virtual environment and activate it.
-
-```bash
+1. Navigate to this directory where this readme file is
+2. create a venv by typing
+```
 python -m venv .venv
-. .venv/Scripts/activate # The .venv activation command might differ depending on your operating system
 ```
-
-2. Install the required packages.
-
-```bash
+3. select the python venv intepreter eg Python 3.12.6('venv':venv)
+4. activate the virtual environment.
+```
+.venv/Scripts/activate
+```
+5.  You should see in the terminal that (venv) is infront of your directory eg (venv)c:/user/...
+6. Install the neccessary packages
+```
 pip install -r requirements.txt
+``` 
+6. Once done, you are ready to run the backend
+```
+uvicorn app.main:app --reload
 ```
 
-3. In the `/backend/app` directory, start the application.
+IMPORTANT: Make sure the frontend is running as well. Refer to the frontend section for more details.
 
-```bash
-cd app
-uvicorn main:app --reload
+7. You should be able to see that "Uvicorn running on http://127.0.0.1:8000" this is where the backend will be running
+8. It is running correctly if you are able to see this in the terminal.
 ```
-
-And you are ready to start using the FeedItForward Backend! The server application is running on http://127.0.0.1:8000/
+INFO:     Application startup complete.
+```
 
 ### Database Seeding
 
@@ -153,28 +145,7 @@ _Note: Please ensure that the `sql_app.db` in the app directory is deleted befor
 
 # API Docs
 
-The FeedItForward Backend application uses FastAPI, which comes with an in-built documentation for API routes created. You may access it via http://127.0.0.1:8000/docs#/
-
-_\*Note: A total of **100 API routes** are documented._
-
-![docs preview](/FeedItForward/backend/public/docs-preview.png)
-
-## API Endpoints
-
-The FeedItForward API Endpoints consists of 3 main category - `Controller`, `CRUD`, and `Misc`.
-
-1. **`Controller`:** API endpoints for Controller specific functionalities as specified in the class diagrams designed.
-2. **`CRUD`:** API endpoints for basic Create, Read, Update, and Delete Operation on classes saved in the database.
-3. **`Misc`:** Other API endpoints such as file uploads and retrievals.
-
-_Please refer to the the [API Docs page](#api-docs) for the specific endpoints and the required request body and expected response._
-
-# App Design
-
-## Overview
-
-![App Overview Design Diagram](</FeedItForward//public/App Overview Diagram.png>)
-_Credits: [ztjhz](https://github.com/ztjhz)_
+The PetBuddy Backend application uses FastAPI, which comes with an in-built documentation and testing functionality for API routes created. You may access it via http://127.0.0.1:8000/docs/ after activating the backend
 
 ## Frontend
 
@@ -268,11 +239,10 @@ The following contributors have contributed to the whole Software Developement L
 7. Black-box and White-box Testing
 8. Documentations
 
-| Name           | Github Username                               | Role       |
-| -------------- | --------------------------------------------- | ---------- |
-| Toh Jing Qiang | [xJQx](https://github.com/xJQx)               | Full-Stack |
-| Toh Jing Hua   | [ztjhz](https://github.com/ztjhz)             | Backend    |
-| Denise Tay     | [denisetay8](https://github.com/denisetay8)   | Frontend   |
-| Minze          | [min-ze](https://github.com/min-ze)           | Frontend   |
-| Tommy Wee      | [toomywee](https://github.com/toomywee)       | Frontend   |
-| Pinyang        | [druggoat888](https://github.com/druggoat888) | Frontend   |
+| Name                   | Role       |
+| -----------------------|----------- |
+| Koh Jia Xin            | Backend    |
+| Krystal Pek Ke Yun     | Backend    |
+| Juannisa Putri Sunarya | Frontend   |
+| Chan Zi Jian           | Frontend   |
+| Long Ming Wei          | Frontend   |
