@@ -41,9 +41,7 @@ https://github.com/xJQx/sc2006-feeditforward/assets/47933193/e90f0b90-c276-47da-
 <br>
 
 1. [Software Requirements Specification](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/Software%20Requirements%20Specification.pdf)
-2. [Code and API Documentations](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/Documentations.pdf)
-3. [Use Case Diagram and Descriptions](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/Use%20Case%20Diagram%20and%20Descriptions.pdf)
-4. [User Interface Mockups](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/User%20Interface%20Mockups.pdf)
+2. [User Interface Mockups](https://www.figma.com/design/aaBK5z7ghgqrfzBhoNjtxA/SC2006-UI-Mockup?node-id=58-2822&t=bCfb7Z1cK7qFdkKf-1)
 
 </details>
 
@@ -51,13 +49,12 @@ https://github.com/xJQx/sc2006-feeditforward/assets/47933193/e90f0b90-c276-47da-
 <summary>Diagrams</summary>
 <br>
 
-1. [App Overview Diagram](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Diagram%20Images/App%20Overview%20Diagram.png)
-2. [Use Case Diagram](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Diagram%20Images/Use%20Case%20Diagram.png)
-3. [Architecture Diagram](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Diagram%20Images/Architecture%20Diagram.png)
-4. [Class Diagram](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Diagram%20Images/Class%20Diagram.png)
-5. [Stereotype Class Diagram](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Diagram%20Images/Stereotype%20Class%20Diagram.png)
-6. [Sequence Diagrams](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Supporting%20Documents/Sequence%20Diagrams.pdf)
-7. [Dialog Map](https://github.com/xJQx/sc2006-feeditforward/blob/main/Lab%205/Diagram%20Images/Dialog%20Map.png)
+1. [Key Boundary and Control Classes](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/Key%20Boundary%20and%20Control%20Classes.jpg)
+2. [Use Case Diagram](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/Use%20Case%20Diagram.jpg)
+3. [Architecture Diagram](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/System%20Architecture.png)
+4. [Class Diagram](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/Class%20Diagram.png)
+5. [Dialog Map](https://github.com/softwarelab3/2006-SCS4-59/blob/main/lab5/Initial%20Dialog%20Map.png)
+6. [Sequence Diagrams](https://github.com/softwarelab3/2006-SCS4-59/tree/main/lab5/Sequential%20Diagram)
 
 </details>
 
