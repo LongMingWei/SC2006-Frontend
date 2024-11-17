@@ -32,7 +32,7 @@ Petbuddy is the ultimate app for connecting pet owners with trusted, professiona
 <summary>Demo Video</summary>
 <br>
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/L2OwSFCVsoI?si=Mg5K55mgb-3kUe74" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[YouTube Link](https://youtu.be/L2OwSFCVsoI)
 
 </details>
 
