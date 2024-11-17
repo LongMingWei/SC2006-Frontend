@@ -14,25 +14,19 @@ npm run dev
 6. Ctrl+shift+M to change from webview to mobile view.
 
 
-# FeedItForward 🍚
+# PetBuddy by 2006-SCS4-59 🐶
 
-Welcome to the official repository for NTU SC2006 Software Engineering group project **_FeedItForward_**.
-
-<p align='center'>
-  <img src="/FeedItForward/public/card.png" width=150 />
-</p>
+Welcome to the official repository for NTU SC2006 Software Engineering group project **_PetBuddy_**.
 
 <p align="center">
-    <a href="https://github.com/xJQx/sc2006-feeditforward/tree/main/FeedItForward/frontend">Frontend</a>
+    <a href="https://github.com/softwarelab3/2006-SCS4-59/tree/main/lab5/Application%20Code/Frontend">Frontend</a>
     |
-    <a href="https://github.com/xJQx/sc2006-feeditforward/tree/main/FeedItForward/backend">Backend</a>
+    <a href="https://github.com/softwarelab3/2006-SCS4-59/tree/main/lab5/Application%20Code/Backend">Backend</a>
     |
-    <a href="https://www.youtube.com/watch?v=yMwcUj8wCmo">Demo Video</a>
+    <a href="https://youtu.be/L2OwSFCVsoI">Demo Video</a>
 </p>
 
-FeedItForward is a **community-driven initiative** that connects the surplus food from local hawkers directly to families in need. It not only reduces **food waste** but also ensures that **nutritious meals reach those most vulnerable** in our society.
-
-This project applied **software engineering best practices** and **design patterns** to ensure high reliability, performance, and extensibility for future enhancements.
+Petbuddy is the ultimate app for connecting pet owners with trusted, professional caretakers. Whether you need a dog walker, a cat sitter, or someone to care for your furry friend while you're away, Petbuddy makes finding reliable help easy and stress-free. Browse through profiles, read reviews, and book the perfect caretaker to ensure your pet gets the love and attention they deserve. With Petbuddy, peace of mind is just a tap away!
 
 <details>
 <summary>Demo Video</summary>
