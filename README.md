@@ -52,7 +52,6 @@ PetBuddy is the ultimate app for connecting pet owners with trusted, professiona
 - [Setup Instructions](#setup-instructions)
   - [Frontend](#frontend)
   - [Backend](#backend)
-- [Documentation](#documentation)
 - [API Docs](#api-docs)
 - [App Design](#app-design)
   - [Frontend](#frontend-1)
