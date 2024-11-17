@@ -46,7 +46,7 @@ PetBuddy is the ultimate app for connecting pet owners with trusted, professiona
 
 **Table of Content**
 
-- [FeedItForward 🍚](#feeditforward-)
+- [PetBuddy 🐶](#petbuddy-)
 - [Setup Instructions](#setup-instructions)
   - [Frontend](#frontend)
   - [Backend](#backend)
